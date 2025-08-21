@@ -79,16 +79,48 @@ struct FGISStreamingConfig
 
 };
 
+
+
+
+// GIS DATA RESOURCE TYPES
+class IBaseGISData {
+public:
+	virtual ~IBaseGISData() {}
+	virtual bool IsLoaded() const = 0;
+};
+
+template<typename T>
+class TGISData : public IBaseGISData
+{
+	T* Data;
+public:
+	TGISData(T* InData = nullptr) : Data(InData) {}
+	virtual ~TGISData() { delete Data; }
+
+	virtual bool IsLoaded() const override { return Data != nullptr; }
+	T* GetData() const { return Data; }
+	void SetData(T* InData)
+	{
+		if (Data != InData) {
+			delete Data;
+			Data = InData;
+		}
+	}
+};
+
+
+
 USTRUCT(BlueprintType)
-struct FGISAtomStaticTileNode 
+struct FGISQTNode 
 {
 	GENERATED_BODY();
 	FGISTileID TileID;
-	FGISAtomStaticTileNode* ParentNode;
-	FGISAtomStaticTileNode* ChildNode[4];
+	TWeakPtr<FGISQTNode> ParentNode;
+	TSharedPtr<FGISQTNode> ChildNode[4];
 
-	TWeakPtr<FGISAtomStaticTileNode> WeakSelf;
-	inline void Initialize(FGISTileID InTileID, TSharedPtr<FGISAtomStaticTileNode> InSelf)
+
+	TWeakPtr<FGISQTNode> WeakSelf;
+	inline void Initialize(FGISTileID InTileID, TSharedPtr<FGISQTNode> InSelf)
 	{
 		this->TileID = InTileID;
 		check(!WeakSelf.IsValid()); // prevent accidental re-assignment
@@ -96,15 +128,31 @@ struct FGISAtomStaticTileNode
 	}
 	FORCEINLINE bool IsLeaf(){return (!ChildNode[0] && !ChildNode[1] && !ChildNode[2] && !ChildNode[3]);};
 	
-	//TEXTURE
+	// DATA MANAGEMENT
 private:
-	UTexture2D* StaticTileTexture;
+	TSharedPtr<IBaseGISData> Resource;
 public:
-	UTexture2D* GetTileTexture() const
-	{return StaticTileTexture ? StaticTileTexture : GetFallbackTexture();}
-	UTexture2D* GetFallbackTexture() const
-	{return GEngine->DefaultTexture;}
+	template<typename T>
+	void SetResource(T* InData)
+	{
+		if (auto AsSharedTGISData = StaticCastSharedPtr<TGISData<T>>(Resource))
+		{
+			AsSharedTGISData->SetData(InData);
+		}
+		else {
+			Resource = MakeShared<TGISData<T>>(InData);
+		}
 
+	}
+
+	template<typename T>
+	T* GetResource() const
+	{
+		if (auto AsSharedTGISData = StaticCastSharedPtr<TGISData<T>>(Resource))
+		{
+			return AsSharedTGISData->GetResource();
+		}
+		return nullptr;
+	}
 
 };
-
