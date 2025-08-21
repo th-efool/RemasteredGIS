@@ -78,3 +78,33 @@ struct FGISStreamingConfig
 	int8 CameraGridLength = 2;
 
 };
+
+USTRUCT(BlueprintType)
+struct FGISAtomStaticTileNode 
+{
+	GENERATED_BODY();
+	FGISTileID TileID;
+	FGISAtomStaticTileNode* ParentNode;
+	FGISAtomStaticTileNode* ChildNode[4];
+
+	TWeakPtr<FGISAtomStaticTileNode> WeakSelf;
+	inline void Initialize(FGISTileID InTileID, TSharedPtr<FGISAtomStaticTileNode> InSelf)
+	{
+		this->TileID = InTileID;
+		check(!WeakSelf.IsValid()); // prevent accidental re-assignment
+		WeakSelf = InSelf;
+	}
+	FORCEINLINE bool IsLeaf(){return (!ChildNode[0] && !ChildNode[1] && !ChildNode[2] && !ChildNode[3]);};
+	
+	//TEXTURE
+private:
+	UTexture2D* StaticTileTexture;
+public:
+	UTexture2D* GetTileTexture() const
+	{return StaticTileTexture ? StaticTileTexture : GetFallbackTexture();}
+	UTexture2D* GetFallbackTexture() const
+	{return GEngine->DefaultTexture;}
+
+
+};
+

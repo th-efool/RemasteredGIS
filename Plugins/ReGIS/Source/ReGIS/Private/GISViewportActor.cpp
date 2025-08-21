@@ -14,7 +14,7 @@ AGISViewportActor::AGISViewportActor()
 
 
 #if WITH_EDITOR
-void AGISViewportActor::
+void AGISViewportActor:: 
 PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
 	Super::PostEditChangeProperty(PropertyChangedEvent);
