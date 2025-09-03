@@ -13,12 +13,12 @@ class REGIS_API UGISStreamingComponent : public UActorComponent
 {
 	GENERATED_BODY()
 public:
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "StreamingConfig")
 	FGISStreamingConfig InStreamingConfig;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "StreamingConfig")
 	FGISTileID InCenterTile;
-		
+	TArray<UTexture2D*> VisibleTiles;
+	
 
 	class AtlasStaticStreaming {
 	public :
@@ -38,26 +38,19 @@ public:
 		int AtlasPixelCountY;
 		int TilePixelCount;
 		TArray<FColor> AtlasTileData; // Tile data for the atlas
-		UTexture2D* StreamingTexture; // Texture for the atlas
-
+		UTexture2D* StreamingTexture; // Camera Texture Cutout for the atlas
 
 		// Atlas Build & Update methods
-		void BuildAtlas();
-		void UpdateAtlas();
+		void BuildUpdateAtlas(TArray<UTexture2D*> VisibleTiles);
 		//Atlas related helper methods
 		void ExtractPixelsFromTexture(UTexture2D* Texture, TArray<FColor>& OutPixels);
-		void CopyPixelsToAtlas(TArray<FColor> InPixels, int8 AtlasTileIndexX, int8 AtlasTileIndexY);
-		void ConvertTileToRowContigous(TArray<FColor>& ContigousTileArray);
-		void ConvertRowToTileContigous(TArray<FColor>& ContigousRowArray);
-
+		void CopyPixelsToAtlasTileContiguous(TArray<FColor> InPixels, int8 AtlasTileIndexX, int8 AtlasTileIndexY);
+		
+		static void ConvertTileArrayToRowContiguous(TArray<FColor>& ContigousTileArray, int InAtlasPixelCountX, int InAtlasPixelCountY, int8 InAtlasTileCountX, int InAtlasTileCountY, int16 InTileSizeX, int16 InTileSizeY, int InTilePixelCount);
+		static void ConvertRowArrayToTileContiguous(TArray<FColor>& ContigousRowArray, int InAtlasPixelCountX, int InAtlasPixelCountY, int8 InAtlasTileCountX, int InAtlasTileCountY, int16 InTileSizeX, int16 InTileSizeY, int InTilePixelCount);
 
 		// Texture Build & Update methods
-		float CameraOffsetX;
-		float CameraOffsetY;
-		void BuildStreaming();
-		void UpdateStreaming();
-
-
+		void BuildUpdateStreaming(float CameraOffsetX, float CameraOffsetY);
 	};
 
 public:	
@@ -67,6 +60,8 @@ public:
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
+	AtlasStaticStreaming* StaticStreaming;
+	void InitStreaming();
 
 public:	
 	// Called every frame

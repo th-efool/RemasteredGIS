@@ -80,6 +80,8 @@ struct FGISStreamingConfig
 };
 
 
+struct ICustomParams{
+};
 
 
 // GIS DATA RESOURCE TYPES

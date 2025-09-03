@@ -9,6 +9,7 @@ UGISStreamingComponent::UGISStreamingComponent()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
+	StaticStreaming = new AtlasStaticStreaming();
 
 	// ...
 }
@@ -18,9 +19,23 @@ UGISStreamingComponent::UGISStreamingComponent()
 void UGISStreamingComponent::BeginPlay()
 {
 	Super::BeginPlay();
+	// FETCH TILES FIRST THEN AFTER AN INITIAL TIMER RUN THIS
 
-	// ...
-	
+	FTimerHandle TimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(
+		TimerHandle,
+		this,
+		&UGISStreamingComponent::InitStreaming,  // callback function
+		1.0f,    // delay in seconds
+		false    // don't loop
+	);
+
+}
+
+void UGISStreamingComponent::InitStreaming()
+{
+	StaticStreaming->BuildUpdateAtlas(VisibleTiles);
+	StaticStreaming->BuildUpdateStreaming(0,0);
 }
 
 
@@ -50,17 +65,30 @@ UGISStreamingComponent::AtlasStaticStreaming::AtlasStaticStreaming(
 	CameraPixelCountY(CameraTileCountY* TileSizeY),
 	AtlasPixelCountX(AtlasTileCountX* TileSizeX),
 	AtlasPixelCountY(AtlasTileCountY* TileSizeY),
-	TilePixelCount(TileSizeX*TileSizeY),
-	CameraOffsetX(0.0f), CameraOffsetY(0.0f)
+	TilePixelCount(TileSizeX*TileSizeY)
 {
 	AtlasTileData.SetNumZeroed(AtlasPixelCountX * AtlasPixelCountY);
-	StreamingTexture = UTexture2D::CreateTransient(AtlasPixelCountX, AtlasPixelCountY);
+	StreamingTexture = UTexture2D::CreateTransient(CameraPixelCountX, CameraPixelCountY);
 	StreamingTexture->SRGB = true; // (gamma correction) or false (linear color space) 
 	//Reason: "0.5" percieved brightness ain't half max intensity 1 in reality, its close to '0.22'
 	StreamingTexture->UpdateResource();
 }
 
 
+void UGISStreamingComponent::AtlasStaticStreaming::BuildUpdateAtlas(TArray<UTexture2D*> VisibleTiles)
+{
+	check(VisibleTiles.Num() == AtlasTileCountX*AtlasTileCountY);
+	for (int TileIndex = VisibleTiles.Num()-1; TileIndex>=0; TileIndex-- )
+	{
+		TArray<FColor> OutTileData;
+		ExtractPixelsFromTexture(VisibleTiles[TileIndex],OutTileData);
+		CopyPixelsToAtlasTileContiguous(OutTileData, TileIndex%AtlasTileCountX, TileIndex/AtlasTileCountX);
+	};
+	
+	ConvertTileArrayToRowContiguous(AtlasTileData, AtlasPixelCountX,
+		AtlasPixelCountY, AtlasTileCountX, AtlasTileCountY,
+		TileSizeX, TileSizeY, TilePixelCount );
+}
 
 void UGISStreamingComponent::AtlasStaticStreaming::ExtractPixelsFromTexture(UTexture2D* Texture, TArray<FColor>& OutPixels)
 {
@@ -83,7 +111,7 @@ void UGISStreamingComponent::AtlasStaticStreaming::ExtractPixelsFromTexture(UTex
 
 }
 
-void UGISStreamingComponent::AtlasStaticStreaming::CopyPixelsToAtlas(TArray<FColor> InPixels, int8 AtlasTileIndexX, int8 AtlasTileIndexY)
+void UGISStreamingComponent::AtlasStaticStreaming::CopyPixelsToAtlasTileContiguous(TArray<FColor> InPixels, int8 AtlasTileIndexX, int8 AtlasTileIndexY)
 { 
 	const int32 TileIndex = AtlasTileIndexY * AtlasTileCountX + AtlasTileIndexX;
 	FColor* AtlasTileDataPtr = AtlasTileData.GetData() + TileIndex*TilePixelCount;
@@ -91,42 +119,42 @@ void UGISStreamingComponent::AtlasStaticStreaming::CopyPixelsToAtlas(TArray<FCol
 	memcpy(AtlasTileDataPtr, SourceDataPtr, TilePixelCount * sizeof(FColor));
 }
 
-void UGISStreamingComponent::AtlasStaticStreaming::ConvertTileToRowContigous(
-	TArray<FColor>& ContigousTileArray)
+void UGISStreamingComponent::AtlasStaticStreaming::ConvertTileArrayToRowContiguous(
+	TArray<FColor>& ContigousTileArray, int InAtlasPixelCountX, int InAtlasPixelCountY, int8 InAtlasTileCountX, int InAtlasTileCountY, int16 InTileSizeX, int16 InTileSizeY, int InTilePixelCount )
 {
 	TArray<FColor> TempTileData;
-	TempTileData.SetNumUninitialized(AtlasPixelCountX * AtlasPixelCountY);
+	TempTileData.SetNumUninitialized(InAtlasPixelCountX * InAtlasPixelCountY);
 
-	const int32 TotalTiles = AtlasTileCountX * AtlasTileCountY;
+	const int32 TotalTiles = InAtlasTileCountX * InAtlasTileCountY;
 
 	ParallelFor(TotalTiles, [&](int32 TileIndex)
 		{
-			const int32 TileIndexX = TileIndex % AtlasTileCountX;
-			const int32 TileIndexY = TileIndex / AtlasTileCountX;
+			const int32 TileIndexX = TileIndex % InAtlasTileCountX;
+			const int32 TileIndexY = TileIndex / InAtlasTileCountX;
 
 			// Even though it's entire atlas data! cuz of CONIGUENSY think of IT as JUST PURE ONE tile data 
 			// Just intutive 2D array = 2D texture EXACT
-			FColor* SrcTileDataPtr = ContigousTileArray.GetData() + TileIndex * TilePixelCount;
+			FColor* SrcTileDataPtr = ContigousTileArray.GetData() + TileIndex * InTilePixelCount;
 
 			// HERE YOU ARE JUST COPYING SINGLE TILE into AN BIG ATLAS 
 			// THIS IS FOR REAL 2D array = 2D texture EXACT
 			FColor* DstRowDataPtr = TempTileData.GetData()
-				+ (TileIndexY * AtlasPixelCountX) * TileSizeY
-				+ (TileIndexX * TileSizeX);
+				+ (TileIndexY * InAtlasPixelCountX) * InTileSizeY
+				+ (TileIndexX * InTileSizeX);
 
-			for (int32 i = 0; i < TileSizeY; ++i)
+			for (int32 i = 0; i < InTileSizeY; ++i)
 			{
-				const FColor* SrcRow = SrcTileDataPtr + i * TileSizeX; 
-				FColor* DstRow = DstRowDataPtr + i * AtlasPixelCountX;
+				const FColor* SrcRow = SrcTileDataPtr + i * InTileSizeX; 
+				FColor* DstRow = DstRowDataPtr + i * InAtlasPixelCountX;
 
-				FMemory::Memcpy(DstRow, SrcRow, TileSizeX * sizeof(FColor));
+				FMemory::Memcpy(DstRow, SrcRow, InTileSizeX * sizeof(FColor));
 			}
 		});
 
 	ContigousTileArray = MoveTemp(TempTileData);
 }
 
-void UGISStreamingComponent::AtlasStaticStreaming::ConvertRowToTileContigous(TArray<FColor>& ContigousRowArray)
+void UGISStreamingComponent::AtlasStaticStreaming::ConvertRowArrayToTileContiguous(TArray<FColor>& ContigousRowArray, int InAtlasPixelCountX, int InAtlasPixelCountY, int8 InAtlasTileCountX, int InAtlasTileCountY, int16 InTileSizeX, int16 InTileSizeY, int InTilePixelCount)
 {
 	// INTERESTING PART!
 	// FUNCTION IS EXACT COPY OF ConvertTileToRowContigous
@@ -134,23 +162,23 @@ void UGISStreamingComponent::AtlasStaticStreaming::ConvertRowToTileContigous(TAr
 	//THINK OF THIS AS HAVING ONE SMALL ARRAY just enough for ONE TILE DATA
 	//AND WE ARE COPYING INTO IT INTO FROM VERY BIG ARRAY (atlas)
 	TArray<FColor> TempTileData;
-	TempTileData.SetNumUninitialized(AtlasPixelCountX * AtlasPixelCountY);
+	TempTileData.SetNumUninitialized(InAtlasPixelCountX * InAtlasPixelCountY);
 
-	const int32 TotalTiles = AtlasTileCountX * AtlasTileCountY;
+	const int32 TotalTiles = InAtlasTileCountX * InAtlasTileCountY;
 
 	ParallelFor(TotalTiles, [&](int32 TileIndex)
 		{
-			const int32 TileIndexX = TileIndex % AtlasTileCountX;
-			const int32 TileIndexY = TileIndex / AtlasTileCountX;
-			FColor* DstTileDataPtr = TempTileData.GetData() + TileIndex * TilePixelCount;
+			const int32 TileIndexX = TileIndex % InAtlasTileCountX;
+			const int32 TileIndexY = TileIndex / InAtlasTileCountX;
+			FColor* DstTileDataPtr = TempTileData.GetData() + TileIndex * InTilePixelCount;
 			FColor* SrcRowDataPtr = ContigousRowArray.GetData()
-				+ (TileIndexY * AtlasPixelCountX) * TileSizeY
-				+ (TileIndexX * TileSizeX);
-			for (int32 i = 0; i < TileSizeY; ++i)
+				+ (TileIndexY * InAtlasPixelCountX) * InTileSizeY
+				+ (TileIndexX * InTileSizeX);
+			for (int32 i = 0; i < InTileSizeY; ++i)
 			{
-				FColor* DstRow = DstTileDataPtr + i * TileSizeX;
-				const FColor* SrcRow = SrcRowDataPtr + i * AtlasPixelCountX;
-				FMemory::Memcpy(DstRow, SrcRow, TileSizeX * sizeof(FColor));
+				FColor* DstRow = DstTileDataPtr + i * InTileSizeX;
+				const FColor* SrcRow = SrcRowDataPtr + i * InAtlasPixelCountX;
+				FMemory::Memcpy(DstRow, SrcRow, InTileSizeX * sizeof(FColor));
 			}
 		});
 	ContigousRowArray = MoveTemp(TempTileData);
@@ -160,5 +188,33 @@ void UGISStreamingComponent::AtlasStaticStreaming::ConvertRowToTileContigous(TAr
 	// is the actual reason for structure being exact fuckin same
 	// OTHER THE BIG FUCKIN GOAT REASON is JUST 
 	// ONE ARRAY WAS GARBAGE, ONE WAS MEANIGFUL which was garbage which was meanigful just got reversed
+}
+
+
+void UGISStreamingComponent::AtlasStaticStreaming::BuildUpdateStreaming(float CameraOffsetX, float CameraOffsetY)
+{
+	int PixelYOffset = (AtlasPixelCountY-CameraPixelCountY)*0.5*CameraOffsetY;
+	int PixelXOffset = (AtlasPixelCountX-CameraPixelCountX)*0.5*CameraOffsetX;
+
+	int CenterPixelY = AtlasPixelCountY/2;
+	int CenterPixelX = AtlasPixelCountX/2;
+
+	int BeginXPixel = CenterPixelX + PixelXOffset;
+	int BeginYPixel = CenterPixelY + PixelYOffset;
+
+	TArray<FColor> TempStreamingData;
+	TempStreamingData.SetNumUninitialized(AtlasPixelCountX * AtlasPixelCountY);
+
+	for (int i = BeginYPixel; (i - BeginYPixel) < CameraPixelCountY; ++i)
+	{
+		FColor* SrcDataPtr = AtlasTileData.GetData() + i * AtlasPixelCountX + BeginXPixel;
+		FColor* DstDataPtr = TempStreamingData.GetData() + (i-BeginYPixel) * CameraPixelCountX;
+		memcpy(DstDataPtr,SrcDataPtr,CameraPixelCountX*sizeof(FColor) );
+	}
+
+	StreamingTexture->GetPlatformData()->Mips[0].BulkData.Lock(LOCK_READ_WRITE);
+	memcpy(StreamingTexture,TempStreamingData.GetData(),CameraPixelCountX*CameraPixelCountY*sizeof(FColor));
+	StreamingTexture->GetPlatformData()->Mips[0].BulkData.Unlock();
+	StreamingTexture->UpdateResource();
 }
 
