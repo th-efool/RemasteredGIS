@@ -3,13 +3,28 @@
 
 #include "GISViewportActor.h"
 
+
 // Sets default values
 AGISViewportActor::AGISViewportActor()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
+	RootSceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootSceneComponent"));
+	RootComponent = RootSceneComponent;
 	StreamingManagerComponent = CreateDefaultSubobject<UGISStreamingComponent>(TEXT("UGISStreamingManager"));
+
+	TileMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("TileMesh"));
+	TileMesh->SetupAttachment(RootSceneComponent);
+	TileMesh->SetWorldScale3D(FVector(5,5,1));
+	
+	if (TileBaseMaterialAsset)
+	{
+		DynamicMaterial = UMaterialInstanceDynamic::Create(TileBaseMaterialAsset, TileMesh);
+	}
+	if (TileBaseMeshAsset)
+	{
+		TileMesh->SetStaticMesh(TileBaseMeshAsset);
+	}
 }
 
 
@@ -18,7 +33,17 @@ void AGISViewportActor::
 PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
 	Super::PostEditChangeProperty(PropertyChangedEvent);
+	
 	OnConstruction(GetActorTransform());
+	if (TileBaseMaterialAsset)
+	{
+		DynamicMaterial = UMaterialInstanceDynamic::Create(TileBaseMaterialAsset, TileMesh);
+	}
+	if (TileBaseMeshAsset)
+	{
+		TileMesh->SetStaticMesh(TileBaseMeshAsset);
+	}
+
 }
 #endif
 
@@ -27,25 +52,57 @@ PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 void AGISViewportActor::OnConstruction(const FTransform& Transform)
 {
 	Super::OnConstruction(Transform);
+
 	StreamingManagerComponent->InStreamingConfig = StreamingConfig;
 
 	CenterTile = FGISTileID(ZoomLevel, CenterX, CenterY);
 	StreamingManagerComponent->InCenterTile = CenterTile;
+	StreamingManagerComponent->StaticStreaming = new UGISStreamingComponent::AtlasStaticStreaming(StreamingConfig.CameraGridLength, StreamingConfig.CameraGridLength, StreamingConfig.GridLength, StreamingConfig.GridLength, StreamingConfig.TileSize, StreamingConfig.TileSize);
+
+	if (TileBaseMaterialAsset)
+	{
+		DynamicMaterial = UMaterialInstanceDynamic::Create(TileBaseMaterialAsset, TileMesh);
+	}
+	if (TileBaseMeshAsset)
+	{
+		TileMesh->SetStaticMesh(TileBaseMeshAsset);
+	}
+
 }
+
 
 
 // Called when the game starts or when spawned
 void AGISViewportActor::BeginPlay()
 {
 	Super::BeginPlay();
+	check(StreamingManagerComponent);
+	check(TileMesh);
+	if (TileBaseMeshAsset)
+	{
+		TileMesh->SetStaticMesh(TileBaseMeshAsset);
+	}
 
-
+	if (DynamicMaterial != nullptr)
+	{
+		DynamicMaterial->SetTextureParameterValue("BaseColor",StreamingManagerComponent->StaticStreaming->StreamingTexture);
+		TileMesh->SetMaterial(0, DynamicMaterial);
+	}
 }
 
 // Called every frame
 void AGISViewportActor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	static float x,y=0;
+	static float z=1;
+	x += 0.01f*z;
+	y += 0.01f*z;
+	if (x>1 || y>1){z=-1; x=1;y=1; }
+	if (x<-1 || y<-1){z=1;x=-1;y=-1;}
+	StreamingManagerComponent->StaticStreaming->BuildUpdateAtlas();
+	StreamingManagerComponent->StaticStreaming->BuildUpdateStreaming(x,y);
+
 
 }
 

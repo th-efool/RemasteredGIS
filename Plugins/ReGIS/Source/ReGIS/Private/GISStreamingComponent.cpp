@@ -3,16 +3,18 @@
 
 #include "GISStreamingComponent.h"
 
+#include "API/GISStaticTileFetcher.h"
+
 // Sets default values for this component's properties
 UGISStreamingComponent::UGISStreamingComponent()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-	StaticStreaming = new AtlasStaticStreaming();
 
 	// ...
 }
+
 
 
 // Called when the game starts
@@ -21,31 +23,35 @@ void UGISStreamingComponent::BeginPlay()
 	Super::BeginPlay();
 	// FETCH TILES FIRST THEN AFTER AN INITIAL TIMER RUN THIS
 
-	FTimerHandle TimerHandle;
-	GetWorld()->GetTimerManager().SetTimer(
-		TimerHandle,
-		this,
-		&UGISStreamingComponent::InitStreaming,  // callback function
-		1.0f,    // delay in seconds
-		false    // don't loop
-	);
+	/*
+	UGISStreamingComponent::InitStreaming();
+	*/
+
 
 }
 
 void UGISStreamingComponent::InitStreaming()
 {
-	StaticStreaming->BuildUpdateAtlas(VisibleTiles);
-	StaticStreaming->BuildUpdateStreaming(0,0);
+	/*
+	float x=0,y=0;
+	if (StaticStreaming)
+	{
+		StaticStreaming->BuildUpdateAtlas();
+		StaticStreaming->BuildUpdateStreaming(x,y);
+	
+	}*/
+
 }
+
 
 
 // Called every frame
 void UGISStreamingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	// ...
 }
+
 
 
 
@@ -72,12 +78,23 @@ UGISStreamingComponent::AtlasStaticStreaming::AtlasStaticStreaming(
 	StreamingTexture->SRGB = true; // (gamma correction) or false (linear color space) 
 	//Reason: "0.5" percieved brightness ain't half max intensity 1 in reality, its close to '0.22'
 	StreamingTexture->UpdateResource();
+	VisibleTiles.Empty(); // reset before filling
+	StaticTileFetcher= new GISStaticTileFetcher(); 
+
+	for (int32 i = 0; i < AtlasTileCountX*AtlasTileCountY; i++)
+	{
+		VisibleTiles.Add(static_cast<UTexture2D*>(StaticTileFetcher->GetFallbackResource()));
+	}
+
+	
 }
 
 
-void UGISStreamingComponent::AtlasStaticStreaming::BuildUpdateAtlas(TArray<UTexture2D*> VisibleTiles)
+void UGISStreamingComponent::AtlasStaticStreaming::BuildUpdateAtlas()
 {
 	check(VisibleTiles.Num() == AtlasTileCountX*AtlasTileCountY);
+	
+	
 	for (int TileIndex = VisibleTiles.Num()-1; TileIndex>=0; TileIndex-- )
 	{
 		TArray<FColor> OutTileData;
@@ -193,17 +210,38 @@ void UGISStreamingComponent::AtlasStaticStreaming::ConvertRowArrayToTileContiguo
 
 void UGISStreamingComponent::AtlasStaticStreaming::BuildUpdateStreaming(float CameraOffsetX, float CameraOffsetY)
 {
+	checkf(CameraOffsetX<= 1 || CameraOffsetX>= -1 || CameraOffsetY<=1 || CameraOffsetY>=-1 ,
+	TEXT("Pixel Offset exceededed max offset! X=%f Y=%f"),
+	 CameraOffsetX, CameraOffsetY);
+	
 	int PixelYOffset = (AtlasPixelCountY-CameraPixelCountY)*0.5*CameraOffsetY;
 	int PixelXOffset = (AtlasPixelCountX-CameraPixelCountX)*0.5*CameraOffsetX;
 
-	int CenterPixelY = AtlasPixelCountY/2;
-	int CenterPixelX = AtlasPixelCountX/2;
+	
+	const int CenterPixelY = AtlasPixelCountY/2;
+	const int CenterPixelX = AtlasPixelCountX/2;
 
-	int BeginXPixel = CenterPixelX + PixelXOffset;
-	int BeginYPixel = CenterPixelY + PixelYOffset;
+	const int CenteredCameraFrameTopLeftPixelX = CenterPixelX - CameraPixelCountX*0.5;
+	const int CenteredCameraFrameTopLeftPixelY = CenterPixelY - CameraPixelCountY*0.5;
 
+	
+	int BeginXPixel = CenteredCameraFrameTopLeftPixelX + PixelXOffset;
+	int BeginYPixel = CenteredCameraFrameTopLeftPixelY + PixelYOffset;
+
+	check(BeginXPixel >= 0);
+	check(BeginYPixel >= 0);
+	
+	checkf(BeginXPixel + CameraPixelCountX <= AtlasPixelCountX,
+	TEXT("Atlas bounds exceeded! BeginXPixel=%d CameraPixelCountX=%d AtlasPixelCountX=%d"),
+	BeginXPixel, CameraPixelCountX, AtlasPixelCountX);
+	
+	checkf(BeginYPixel + CameraPixelCountY <= AtlasPixelCountY,
+	TEXT("Atlas bounds exceeded! BeginXPixel=%d CameraPixelCountX=%d AtlasPixelCountX=%d"),
+	BeginXPixel, CameraPixelCountY, AtlasPixelCountY);
+	
 	TArray<FColor> TempStreamingData;
 	TempStreamingData.SetNumUninitialized(AtlasPixelCountX * AtlasPixelCountY);
+
 
 	for (int i = BeginYPixel; (i - BeginYPixel) < CameraPixelCountY; ++i)
 	{
@@ -212,8 +250,8 @@ void UGISStreamingComponent::AtlasStaticStreaming::BuildUpdateStreaming(float Ca
 		memcpy(DstDataPtr,SrcDataPtr,CameraPixelCountX*sizeof(FColor) );
 	}
 
-	StreamingTexture->GetPlatformData()->Mips[0].BulkData.Lock(LOCK_READ_WRITE);
-	memcpy(StreamingTexture,TempStreamingData.GetData(),CameraPixelCountX*CameraPixelCountY*sizeof(FColor));
+	void* mipBuffer = StreamingTexture->GetPlatformData()->Mips[0].BulkData.Lock(LOCK_READ_WRITE);
+	memcpy(mipBuffer,TempStreamingData.GetData(),CameraPixelCountX*CameraPixelCountY*sizeof(FColor));
 	StreamingTexture->GetPlatformData()->Mips[0].BulkData.Unlock();
 	StreamingTexture->UpdateResource();
 }

@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GISDataType.h"
 #include "Components/ActorComponent.h"
+#include "API/GISStaticTileFetcher.h"
 #include "GISStreamingComponent.generated.h"
 
 
@@ -17,19 +18,18 @@ public:
 	FGISStreamingConfig InStreamingConfig;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "StreamingConfig")
 	FGISTileID InCenterTile;
-	TArray<UTexture2D*> VisibleTiles;
 	
-
+	
 	class AtlasStaticStreaming {
 	public :
 
 		// Constructor & Initializatiors 
 		AtlasStaticStreaming();
 		AtlasStaticStreaming(int8 InCameraLengthX, int8 InCameraLengthY, int8 InAtlasLengthX, int8 InAtlasLengthY, int16 TileSizeX, int16 TileSizeY);
-		int8 CameraTileCountX; 
-		int8 CameraTileCountY;
-		int8 AtlasTileCountX;
-		int8 AtlasTileCountY; 
+		int8 CameraTileCountX=3; 
+		int8 CameraTileCountY=3;
+		int8 AtlasTileCountX=7;
+		int8 AtlasTileCountY=7; 
 		int16 TileSizeX = 256; // Size of each tile in pixels
 		int16 TileSizeY = 256;
 		int CameraPixelCountX;
@@ -37,11 +37,14 @@ public:
 		int AtlasPixelCountX;
 		int AtlasPixelCountY;
 		int TilePixelCount;
+		TArray<UTexture2D*> VisibleTiles;
+
 		TArray<FColor> AtlasTileData; // Tile data for the atlas
 		UTexture2D* StreamingTexture; // Camera Texture Cutout for the atlas
+		GISStaticTileFetcher* StaticTileFetcher;
 
 		// Atlas Build & Update methods
-		void BuildUpdateAtlas(TArray<UTexture2D*> VisibleTiles);
+		void BuildUpdateAtlas();
 		//Atlas related helper methods
 		void ExtractPixelsFromTexture(UTexture2D* Texture, TArray<FColor>& OutPixels);
 		void CopyPixelsToAtlasTileContiguous(TArray<FColor> InPixels, int8 AtlasTileIndexX, int8 AtlasTileIndexY);
@@ -57,15 +60,15 @@ public:
 	// Sets default values for this component's properties
 	UGISStreamingComponent();
 
+public:
+	AtlasStaticStreaming* StaticStreaming;
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
-	AtlasStaticStreaming* StaticStreaming;
 	void InitStreaming();
 
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
 		
 };

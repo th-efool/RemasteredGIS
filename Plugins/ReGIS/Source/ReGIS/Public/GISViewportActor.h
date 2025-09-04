@@ -23,10 +23,13 @@ public:
 	void UpdateMaterialTexture();
 	void OnConstruction(const FTransform& Transform) override;
 	void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent);
+	
      // Systems
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     UGISStreamingComponent* StreamingManagerComponent;
-    UPROPERTY()
+
+	// TEMP (CREATE SEPERATE COMPONENT STATIC RENDER TILE!)
+	UPROPERTY()
     UMaterialInstanceDynamic* DynamicMaterial;
 
 

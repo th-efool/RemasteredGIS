@@ -19,13 +19,13 @@ public:
 	TArray<TSharedRef<IHttpRequest>> ActiveRequests;
 	TMap<FHttpRequestPtr,TFunction<void(void*)> > PendingCallbacks;
 
-	
+	virtual void* GetFallbackResource() =0; // create an static Fallback resource variable
+
 	
 	protected:
 	virtual FString buildAPIURL(ICustomParams& Params)=0;
 
 	virtual void HandleAPIResponse(FHttpResponsePtr Response, TFunction<void(void*)> callback);
-	virtual void* GetFallbackResource() =0; // create an static Fallback resource variable
 
 
 private:

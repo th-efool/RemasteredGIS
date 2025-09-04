@@ -11,6 +11,7 @@ public:
 private:
 	virtual FString buildAPIURL(ICustomParams& Params) override;
 	virtual void HandleAPIResponse(FHttpResponsePtr Response, TFunction<void(void*)> callback) override;
+public: 
 	virtual void* GetFallbackResource() override;
 
 };

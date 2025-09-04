@@ -50,24 +50,26 @@ void GISStaticTileFetcher::HandleAPIResponse(FHttpResponsePtr Response, TFunctio
 
 void* GISStaticTileFetcher::GetFallbackResource()
 {
+	/*
 	static UTexture2D* FallbackTexture;
 	if (FallbackTexture){return static_cast<void*>(FallbackTexture);}
-	
+	*/
+	UTexture2D* FallbackTexture;
 	FallbackTexture = UTexture2D::CreateTransient(256, 256, PF_B8G8R8A8);
 	FallbackTexture->MipGenSettings = TMGS_NoMipmaps;
 	FallbackTexture->SRGB = true;
 	FColor FillColor = FColor::Black;
 	FString ColorName = TEXT("Black");
 
-	FillColor = FColor::Turquoise;
+	FillColor = FColor::MakeRandomColor();
 	UE_LOG(LogTemp, Display, TEXT("Chosen color: %s"), *ColorName);
 	
 	
 	TArray<FColor> Pixels;
 	Pixels.Init(FillColor, 256 * 256);
 
-	void* TextureData = FallbackTexture->GetPlatformData()->Mips[0].BulkData.Lock(LOCK_READ_WRITE);
-	FMemory::Memcpy(TextureData, Pixels.GetData(), Pixels.Num() * sizeof(FColor));
+	void* TextureDataBuffer = FallbackTexture->GetPlatformData()->Mips[0].BulkData.Lock(LOCK_READ_WRITE);
+	FMemory::Memcpy(TextureDataBuffer, Pixels.GetData(), Pixels.Num() * sizeof(FColor));
 	FallbackTexture->GetPlatformData()->Mips[0].BulkData.Unlock();
 
 	FallbackTexture->UpdateResource();
