@@ -23,16 +23,9 @@ void GISAPIBase::MakeApiCall(ICustomParams& Params, TFunction<void(void*)> callb
 	Request->SetVerb("GET");
 	ActiveRequests.Add(Request);
 	PendingCallbacks.Add(Request, callback);
-	Request->OnProcessRequestComplete().BindLambda(
-		[this,callback](FHttpRequestPtr Request, FHttpResponsePtr Response, bool bSuccess)
-		{
-			
-		});
+	Request->OnProcessRequestComplete().BindRaw(
+	this, &GISAPIBase::OnAPIResponseRecieved);
 	Request->ProcessRequest();
-}
-
-void GISAPIBase::HandleAPIResponse(FHttpResponsePtr Response, TFunction<void(void*)> callback)
-{
 }
 
 void GISAPIBase::OnAPIResponseRecieved(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bSuccess)
@@ -50,10 +43,7 @@ void GISAPIBase::OnAPIResponseRecieved(FHttpRequestPtr Request, FHttpResponsePtr
 	{HandleAPIResponse(Response,Callback);};
 }
 
-GISAPIBase::~GISAPIBase()
-{
-	CancelAllRequests();
-}
+
 
 void GISAPIBase::CancelAllRequests()
 {
@@ -63,4 +53,12 @@ void GISAPIBase::CancelAllRequests()
 		{Request->CancelRequest();}
 	}
 	ActiveRequests.Empty();
+}
+
+void GISAPIBase::HandleAPIResponse(FHttpResponsePtr Response, TFunction<void(void*)> callback)
+{
+}
+GISAPIBase::~GISAPIBase()
+{
+	CancelAllRequests();
 }

@@ -15,12 +15,12 @@ public:
 	GISAPIBase();
 	virtual ~GISAPIBase();
 
-	virtual void MakeApiCall(ICustomParams& Params, TFunction<void(void*)> callback);
-	virtual void Decode(ICustomParams Params) =0; 
-	virtual void Encode(ICustomParams Params) =0;
+	void MakeApiCall(ICustomParams& Params, TFunction<void(void*)> callback);
 	TArray<TSharedRef<IHttpRequest>> ActiveRequests;
 	TMap<FHttpRequestPtr,TFunction<void(void*)> > PendingCallbacks;
 
+	
+	
 	protected:
 	virtual FString buildAPIURL(ICustomParams& Params)=0;
 
