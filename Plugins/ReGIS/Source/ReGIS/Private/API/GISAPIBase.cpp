@@ -31,6 +31,10 @@ void GISAPIBase::MakeApiCall(ICustomParams& Params, TFunction<void(void*)> callb
 	Request->ProcessRequest();
 }
 
+void GISAPIBase::HandleAPIResponse(FHttpResponsePtr Response, TFunction<void(void*)> callback)
+{
+}
+
 void GISAPIBase::OnAPIResponseRecieved(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bSuccess)
 {
 	TFunction<void(void*)>*  CallbackPtr = PendingCallbacks.Find(Request);
@@ -42,7 +46,7 @@ void GISAPIBase::OnAPIResponseRecieved(FHttpRequestPtr Request, FHttpResponsePtr
 
 	if (!this || !bSuccess || !Response.IsValid())
 	{Callback(GetFallbackResource());}
-	else
+	else 
 	{HandleAPIResponse(Response,Callback);};
 }
 

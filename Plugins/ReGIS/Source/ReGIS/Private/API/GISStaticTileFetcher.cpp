@@ -1,5 +1,6 @@
-﻿#include "D:\ThisPC\Documents\Unreal Projects\RemasteredGIS\Intermediate\Build\Win64\x64\RemasteredGISEditor\Development\UnrealEd\SharedPCH.UnrealEd.Project.ValApi.ValExpApi.Cpp20.h"
-#include "GISStaticTileFetcher.h"
+﻿#include "GISStaticTileFetcher.h"
+
+#include "D:\ThisPC\Documents\Unreal Projects\RemasteredGIS\Intermediate\Build\Win64\x64\RemasteredGISEditor\Development\UnrealEd\SharedPCH.UnrealEd.Project.ValApi.ValExpApi.Cpp20.h"
 
 
 
@@ -19,6 +20,10 @@ struct ParamIStaticTileEncode : ICustomParams
 	
 };
 
+GISStaticTileFetcher::~GISStaticTileFetcher()
+{
+}
+
 void GISStaticTileFetcher::MakeApiCall(ICustomParams& Params, TFunction<void(void*)> callback)
 {
 	
@@ -33,7 +38,7 @@ void GISStaticTileFetcher::Encode(ICustomParams Params)
 {
 }
 
-void* GISStaticTileFetcher::FallbackResponse()
+void* GISStaticTileFetcher::GetFallbackResource()
 {
 	return nullptr;
 }
@@ -45,4 +50,9 @@ FString GISStaticTileFetcher::buildAPIURL(ICustomParams& Params)
 	return FString::Printf(TEXT("https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/256/%d/%d/%d?access_token=%s"),
 		StaticTileParams.TileID.ZoomLevel, StaticTileParams.TileID.X, StaticTileParams.TileID.Y, *AccessToken);
 
+}
+
+void GISStaticTileFetcher::HandleAPIResponse(FHttpResponsePtr Response, TFunction<void(void*)> callback)
+{
+	GISAPIBase::HandleAPIResponse(Response, callback);
 }

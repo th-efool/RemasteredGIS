@@ -13,6 +13,7 @@ class GISAPIBase
 {
 public:
 	GISAPIBase();
+	virtual ~GISAPIBase();
 
 	virtual void MakeApiCall(ICustomParams& Params, TFunction<void(void*)> callback);
 	virtual void Decode(ICustomParams Params) =0; 
@@ -31,6 +32,5 @@ private:
 	void OnAPIResponseRecieved(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bSuccess);
 	void CancelAllRequests();
 
-	~GISAPIBase();
 };
 

@@ -13,21 +13,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0cc98920-c020-4168-a7b2-2b2f53514b6e" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/API/GISAPIBase.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/API/GISAPIBase.h" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/API/GISStaticTileFetcher.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/API/GISStaticTileFetcher.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/GISQuadTreeManager.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/GISQuadTreeManager.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/GISStreamingComponent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/GISStreamingComponent.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/IGISRasterTileFetcher.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/IGISStaticTileFetcher.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/IGISTileFetcher.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/GISDataType.h" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/GISDataType.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/GISQuadTreeManager.h" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/GISQuadTreeManager.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/GISStreamingComponent.h" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/GISStreamingComponent.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/IGISRasterTileFetcher.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/IGISStaticTileFetcher.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/IGISTileFetcher.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.RemasteredGIS/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.RemasteredGIS/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/API/GISAPIBase.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/API/GISAPIBase.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/API/GISAPIBase.h" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/API/GISAPIBase.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/API/GISStaticTileFetcher.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/API/GISStaticTileFetcher.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/API/GISStaticTileFetcher.h" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/API/GISStaticTileFetcher.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -54,20 +44,21 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "master",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RunManager" selected="C/C++ Project.RemasteredGIS">
     <configuration name="RemasteredGIS" type="CppProject" factoryName="C++ Project">
       <configuration_1 setup="1">
@@ -192,7 +183,7 @@
       <workItem from="1756763332457" duration="26000" />
       <workItem from="1756763616782" duration="471000" />
       <workItem from="1756794661670" duration="271000" />
-      <workItem from="1756879257755" duration="12823000" />
+      <workItem from="1756879257755" duration="16326000" />
     </task>
     <servers />
   </component>
@@ -220,5 +211,9 @@
         </breakpoint>
       </breakpoints>
     </breakpoint-manager>
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
   </component>
 </project>
