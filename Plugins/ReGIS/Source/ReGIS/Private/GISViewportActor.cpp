@@ -2,7 +2,7 @@
 
 
 #include "GISViewportActor.h"
-
+#include "GISErrorHandler.h"
 
 // Sets default values
 AGISViewportActor::AGISViewportActor()
@@ -17,11 +17,11 @@ AGISViewportActor::AGISViewportActor()
 	TileMesh->SetupAttachment(RootSceneComponent);
 	TileMesh->SetWorldScale3D(FVector(5,5,1));
 	
-	if (TileBaseMaterialAsset)
+	GIS_HANDLE_IF (TileBaseMaterialAsset)
 	{
 		DynamicMaterial = UMaterialInstanceDynamic::Create(TileBaseMaterialAsset, TileMesh);
 	}
-	if (TileBaseMeshAsset)
+	GIS_HANDLE_IF (TileBaseMeshAsset)
 	{
 		TileMesh->SetStaticMesh(TileBaseMeshAsset);
 	}
@@ -35,11 +35,11 @@ PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 	Super::PostEditChangeProperty(PropertyChangedEvent);
 	
 	OnConstruction(GetActorTransform());
-	if (TileBaseMaterialAsset)
+	GIS_HANDLE_IF (TileBaseMaterialAsset)
 	{
 		DynamicMaterial = UMaterialInstanceDynamic::Create(TileBaseMaterialAsset, TileMesh);
 	}
-	if (TileBaseMeshAsset)
+	GIS_HANDLE_IF (TileBaseMeshAsset)
 	{
 		TileMesh->SetStaticMesh(TileBaseMeshAsset);
 	}
@@ -59,11 +59,11 @@ void AGISViewportActor::OnConstruction(const FTransform& Transform)
 	StreamingManagerComponent->InCenterTile = CenterTile;
 	StreamingManagerComponent->StaticStreaming = new UGISStreamingComponent::AtlasStaticStreaming(StreamingConfig.CameraGridLength, StreamingConfig.CameraGridLength, StreamingConfig.GridLength, StreamingConfig.GridLength, StreamingConfig.TileSize, StreamingConfig.TileSize);
 
-	if (TileBaseMaterialAsset)
+	GIS_HANDLE_IF (TileBaseMaterialAsset)
 	{
 		DynamicMaterial = UMaterialInstanceDynamic::Create(TileBaseMaterialAsset, TileMesh);
 	}
-	if (TileBaseMeshAsset)
+	GIS_HANDLE_IF (TileBaseMeshAsset)
 	{
 		TileMesh->SetStaticMesh(TileBaseMeshAsset);
 	}
@@ -78,12 +78,12 @@ void AGISViewportActor::BeginPlay()
 	Super::BeginPlay();
 	check(StreamingManagerComponent);
 	check(TileMesh);
-	if (TileBaseMeshAsset)
+	GIS_HANDLE_IF (TileBaseMeshAsset)
 	{
 		TileMesh->SetStaticMesh(TileBaseMeshAsset);
 	}
 
-	if (DynamicMaterial != nullptr)
+	GIS_HANDLE_IF (DynamicMaterial != nullptr)
 	{
 		DynamicMaterial->SetTextureParameterValue("BaseColor",StreamingManagerComponent->StaticStreaming->StreamingTexture);
 		TileMesh->SetMaterial(0, DynamicMaterial);
@@ -97,7 +97,7 @@ void AGISViewportActor::Tick(float DeltaTime)
 	static float x,y=0;
 	static float z=1;
 	x += 0.01f*z;
-	y += 0.01f*z;
+	y += 0.012f*z;
 	if (x>1 || y>1){z=-1; x=1;y=1; }
 	if (x<-1 || y<-1){z=1;x=-1;y=-1;}
 	StreamingManagerComponent->StaticStreaming->BuildUpdateAtlas();

@@ -3,6 +3,7 @@
 
 #include "GISStreamingComponent.h"
 
+#include "GISErrorHandler.h"
 #include "API/GISStaticTileFetcher.h"
 
 // Sets default values for this component's properties
@@ -92,7 +93,7 @@ UGISStreamingComponent::AtlasStaticStreaming::AtlasStaticStreaming(
 
 void UGISStreamingComponent::AtlasStaticStreaming::BuildUpdateAtlas()
 {
-	check(VisibleTiles.Num() == AtlasTileCountX*AtlasTileCountY);
+	GIS_HANDLE(VisibleTiles.Num() == AtlasTileCountX*AtlasTileCountY,FLoggerLevel::Warn);
 	
 	
 	for (int TileIndex = VisibleTiles.Num()-1; TileIndex>=0; TileIndex-- )
@@ -109,13 +110,8 @@ void UGISStreamingComponent::AtlasStaticStreaming::BuildUpdateAtlas()
 
 void UGISStreamingComponent::AtlasStaticStreaming::ExtractPixelsFromTexture(UTexture2D* Texture, TArray<FColor>& OutPixels)
 {
-	check(Texture);	
-	if (!Texture)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("StreamingTexture was null, skipping update"));
-		return;
-	}
-
+	GIS_FATAL_MSG(Texture, TEXT("StreamingTexture was null, skipping update"));	
+	
 	OutPixels.SetNumUninitialized(Texture->GetSizeX() * Texture->GetSizeY());
 	FByteBulkData& BulkData =Texture->GetPlatformData()->Mips[0].BulkData;
 
@@ -210,7 +206,7 @@ void UGISStreamingComponent::AtlasStaticStreaming::ConvertRowArrayToTileContiguo
 
 void UGISStreamingComponent::AtlasStaticStreaming::BuildUpdateStreaming(float CameraOffsetX, float CameraOffsetY)
 {
-	checkf(CameraOffsetX<= 1 || CameraOffsetX>= -1 || CameraOffsetY<=1 || CameraOffsetY>=-1 ,
+	GIS_FATAL_MSG(CameraOffsetX<= 1 || CameraOffsetX>= -1 || CameraOffsetY<=1 || CameraOffsetY>=-1 ,
 	TEXT("Pixel Offset exceededed max offset! X=%f Y=%f"),
 	 CameraOffsetX, CameraOffsetY);
 	
@@ -228,14 +224,14 @@ void UGISStreamingComponent::AtlasStaticStreaming::BuildUpdateStreaming(float Ca
 	int BeginXPixel = CenteredCameraFrameTopLeftPixelX + PixelXOffset;
 	int BeginYPixel = CenteredCameraFrameTopLeftPixelY + PixelYOffset;
 
-	check(BeginXPixel >= 0);
-	check(BeginYPixel >= 0);
+	GIS_HANDLE_IF(BeginXPixel >= 0 || BeginXPixel <= AtlasPixelCountX)
+	GIS_HANDLE_IF(BeginYPixel >= 0 || BeginYPixel <= AtlasPixelCountY)
 	
-	checkf(BeginXPixel + CameraPixelCountX <= AtlasPixelCountX,
+	GIS_FATAL_MSG(BeginXPixel + CameraPixelCountX <= AtlasPixelCountX,
 	TEXT("Atlas bounds exceeded! BeginXPixel=%d CameraPixelCountX=%d AtlasPixelCountX=%d"),
 	BeginXPixel, CameraPixelCountX, AtlasPixelCountX);
 	
-	checkf(BeginYPixel + CameraPixelCountY <= AtlasPixelCountY,
+	GIS_FATAL_MSG(BeginYPixel + CameraPixelCountY <= AtlasPixelCountY,
 	TEXT("Atlas bounds exceeded! BeginXPixel=%d CameraPixelCountX=%d AtlasPixelCountX=%d"),
 	BeginXPixel, CameraPixelCountY, AtlasPixelCountY);
 	
