@@ -155,8 +155,8 @@ void StaticStreaming::ConvertRowArrayToTileContiguous(TArray<FColor>& ContigousR
 void StaticStreaming::BuildUpdateStreaming(float CameraOffsetX, float CameraOffsetY)
 {
 	GIS_FATAL_MSG(CameraOffsetX<= 1 || CameraOffsetX>= -1 || CameraOffsetY<=1 || CameraOffsetY>=-1 ,
-	TEXT("Pixel Offset exceededed max offset! X=%f Y=%f"),
-	 CameraOffsetX, CameraOffsetY);
+	FString::Printf(TEXT("Pixel Offset exceededed max offset! X=%f Y=%f"),
+	 CameraOffsetX, CameraOffsetY));
 	
 	int PixelYOffset = (AtlasPixelCountY-CameraPixelCountY)*0.5*CameraOffsetY;
 	int PixelXOffset = (AtlasPixelCountX-CameraPixelCountX)*0.5*CameraOffsetX;
@@ -176,12 +176,12 @@ void StaticStreaming::BuildUpdateStreaming(float CameraOffsetX, float CameraOffs
 	GIS_HANDLE_IF(BeginYPixel >= 0 || BeginYPixel <= AtlasPixelCountY)
 	
 	GIS_FATAL_MSG(BeginXPixel + CameraPixelCountX <= AtlasPixelCountX,
-	TEXT("Atlas bounds exceeded! BeginXPixel=%d CameraPixelCountX=%d AtlasPixelCountX=%d"),
-	BeginXPixel, CameraPixelCountX, AtlasPixelCountX);
+	FString::Printf(TEXT("Atlas bounds exceeded! BeginXPixel=%d CameraPixelCountX=%d AtlasPixelCountX=%d"),
+	BeginXPixel, CameraPixelCountX, AtlasPixelCountX));
 	
 	GIS_FATAL_MSG(BeginYPixel + CameraPixelCountY <= AtlasPixelCountY,
-	TEXT("Atlas bounds exceeded! BeginXPixel=%d CameraPixelCountX=%d AtlasPixelCountX=%d"),
-	BeginXPixel, CameraPixelCountY, AtlasPixelCountY);
+	FString::Printf(TEXT("Atlas bounds exceeded! BeginXPixel=%d CameraPixelCountX=%d AtlasPixelCountX=%d"),
+	BeginXPixel, CameraPixelCountY, AtlasPixelCountY));
 	
 	TArray<FColor> TempStreamingData;
 	TempStreamingData.SetNumUninitialized(AtlasPixelCountX * AtlasPixelCountY);

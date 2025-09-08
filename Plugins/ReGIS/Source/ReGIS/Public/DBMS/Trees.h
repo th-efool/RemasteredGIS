@@ -9,6 +9,7 @@ public:
 };
 
 
+/*
 class QuadTree : public BaseTree
 {
 public:
@@ -28,4 +29,4 @@ private:
 	static FGISTileID ComputeChildID(const FGISQTNode* Node, int8 ChildIndex);
 	static int8 CalculateChildIndex(const FGISTileID TileID);
 		
-};
+};*/

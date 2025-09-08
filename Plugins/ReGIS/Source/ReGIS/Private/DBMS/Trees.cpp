@@ -1,5 +1,7 @@
-﻿#include "D:\ThisPC\Documents\Unreal Projects\RemasteredGIS\Intermediate\Build\Win64\x64\RemasteredGISEditor\Development\UnrealEd\SharedPCH.UnrealEd.Project.ValApi.ValExpApi.Cpp20.h"
-#include "DBMS/Trees.h"
+﻿#include "DBMS/Trees.h"
+
+/*
+#include "D:\ThisPC\Documents\Unreal Projects\RemasteredGIS\Intermediate\Build\Win64\x64\RemasteredGISEditor\Development\UnrealEd\SharedPCH.UnrealEd.Project.ValApi.ValExpApi.Cpp20.h"
 
 
 
@@ -101,4 +103,5 @@ void QuadTree::LinkParentChildNodes(TSharedPtr<FGISQTNode> Node)
 	}
 	
 }
+*/
 

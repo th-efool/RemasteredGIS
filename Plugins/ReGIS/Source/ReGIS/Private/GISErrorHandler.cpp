@@ -10,5 +10,6 @@ GISErrorHandler::GISErrorHandler()
 
 GISErrorHandler::~GISErrorHandler()
 {
+	
 }
 
