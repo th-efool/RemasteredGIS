@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "GISAPIBase.h"
+#include "API/GISAPIBase.h"
 
 #include "HttpModule.h"
 #include "IImageWrapperModule.h"

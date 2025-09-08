@@ -17,6 +17,10 @@ class REGIS_API UGISDataType : public UObject
 };
 
 
+struct ICustomParams{
+};
+
+
 USTRUCT(BlueprintType)
 struct FGISPoint
 {
@@ -79,82 +83,3 @@ struct FGISStreamingConfig
 
 };
 
-
-struct ICustomParams{
-};
-
-
-// GIS DATA RESOURCE TYPES
-class IBaseGISData {
-public:
-	virtual ~IBaseGISData() {}
-	virtual bool IsLoaded() const = 0;
-};
-
-template<typename T>
-class TGISData : public IBaseGISData
-{
-	T* Data;
-public:
-	TGISData(T* InData = nullptr) : Data(InData) {}
-	virtual ~TGISData() { delete Data; }
-
-	virtual bool IsLoaded() const override { return Data != nullptr; }
-	T* GetData() const { return Data; }
-	void SetData(T* InData)
-	{
-		if (Data != InData) {
-			delete Data;
-			Data = InData;
-		}
-	}
-};
-
-
-
-USTRUCT(BlueprintType)
-struct FGISQTNode 
-{
-	GENERATED_BODY();
-	FGISTileID TileID;
-	TWeakPtr<FGISQTNode> ParentNode;
-	TSharedPtr<FGISQTNode> ChildNode[4];
-
-
-	TWeakPtr<FGISQTNode> WeakSelf;
-	inline void Initialize(FGISTileID InTileID, TSharedPtr<FGISQTNode> InSelf)
-	{
-		this->TileID = InTileID;
-		check(!WeakSelf.IsValid()); // prevent accidental re-assignment
-		WeakSelf = InSelf;
-	}
-	FORCEINLINE bool IsLeaf(){return (!ChildNode[0] && !ChildNode[1] && !ChildNode[2] && !ChildNode[3]);};
-	
-	// DATA MANAGEMENT
-private:
-	TSharedPtr<IBaseGISData> Resource;
-public:
-	template<typename T>
-	void SetResource(T* InData)
-	{
-		if (auto AsSharedTGISData = StaticCastSharedPtr<TGISData<T>>(Resource))
-		{
-			AsSharedTGISData->SetData(InData);
-		}
-		else {
-			Resource = MakeShared<TGISData<T>>(InData);
-		}
-
-	}
-
-	template<typename T>
-	T* GetResource() const
-	{
-		if (auto AsSharedTGISData = StaticCastSharedPtr<TGISData<T>>(Resource))
-		{
-			return AsSharedTGISData->GetResource();
-		}
-		return nullptr;
-	}
-
-};

@@ -1,5 +1,6 @@
-﻿#include "GISStaticTileFetcher.h"
+﻿#include "API/GISStaticTileFetcher.h"
 
+#include "GISDataType.h"
 #include "IImageWrapper.h"
 #include "IImageWrapperModule.h"
 #include "Interfaces/IHttpResponse.h"

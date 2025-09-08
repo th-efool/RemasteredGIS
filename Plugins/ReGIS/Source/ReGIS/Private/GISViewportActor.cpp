@@ -57,7 +57,7 @@ void AGISViewportActor::OnConstruction(const FTransform& Transform)
 
 	CenterTile = FGISTileID(ZoomLevel, CenterX, CenterY);
 	StreamingManagerComponent->InCenterTile = CenterTile;
-	StreamingManagerComponent->StaticStreaming = new UGISStreamingComponent::AtlasStaticStreaming(StreamingConfig.CameraGridLength, StreamingConfig.CameraGridLength, StreamingConfig.GridLength, StreamingConfig.GridLength, StreamingConfig.TileSize, StreamingConfig.TileSize);
+	StreamingManagerComponent->StaticStreaming.Add(new StaticStreaming(StreamingConfig.CameraGridLength, StreamingConfig.CameraGridLength, StreamingConfig.GridLength, StreamingConfig.GridLength, StreamingConfig.TileSize, StreamingConfig.TileSize)); 
 
 	GIS_HANDLE_IF (TileBaseMaterialAsset)
 	{
@@ -85,7 +85,7 @@ void AGISViewportActor::BeginPlay()
 
 	GIS_HANDLE_IF (DynamicMaterial != nullptr)
 	{
-		DynamicMaterial->SetTextureParameterValue("BaseColor",StreamingManagerComponent->StaticStreaming->StreamingTexture);
+		DynamicMaterial->SetTextureParameterValue("BaseColor",StreamingManagerComponent->StaticStreaming[0]->StreamingTexture);
 		TileMesh->SetMaterial(0, DynamicMaterial);
 	}
 }
@@ -100,8 +100,8 @@ void AGISViewportActor::Tick(float DeltaTime)
 	y += 0.012f*z;
 	if (x>1 || y>1){z=-1; x=1;y=1; }
 	if (x<-1 || y<-1){z=1;x=-1;y=-1;}
-	StreamingManagerComponent->StaticStreaming->BuildUpdateAtlas();
-	StreamingManagerComponent->StaticStreaming->BuildUpdateStreaming(x,y);
+	StreamingManagerComponent->StaticStreaming[0]->BuildUpdateAtlas();
+	StreamingManagerComponent->StaticStreaming[0]->BuildUpdateStreaming(x,y);
 
 
 }
