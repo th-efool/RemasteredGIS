@@ -5,28 +5,24 @@
 class BaseTree
 {
 public:
+	TMap<uint64,TSharedPtr<FGISBaseDataNode>> QuadTreeMap;
 	
+	TSharedPtr<FGISBaseDataNode> GetNode(const FGISIdentifier& NodeID); 
+	virtual TSharedPtr<FGISBaseDataNode> CreateNode(const FGISIdentifier& NodeID) =0;
+public: 
+	TSharedPtr<FGISBaseDataNode> GetParentNode(const ICustomParams ParentIndex);
+	TSharedPtr<FGISBaseDataNode> GetChildNode(const ICustomParams ChildIndex);
+	
+protected:
+	virtual void LinkParentChildNodes(TSharedPtr<FGISQTNode> Node) =0;
+	~BaseTree();
 };
+ 
 
-
-/*
 class QuadTree : public BaseTree
 {
 public:
-	TMap<uint64,TSharedPtr<FGISQTNode>> QuadTreeMap; 
-	TSharedPtr<FGISQTNode> GetNode(const FGISTileID& TileID); //Creates node if it doesn't exist and adds it to map
-public: 
-	TSharedPtr<FGISQTNode> GetParentNode(const TSharedPtr<FGISQTNode>& Node);
-	TSharedPtr<FGISQTNode> GetChildNode(const TSharedPtr<FGISQTNode>& Node,const int8 ChildIndex);
-	
+	virtual TSharedPtr<FGISBaseDataNode> CreateNode(const FGISIdentifier& NodeID) override; //Creates node if it doesn't exist and adds it to map
 private:
-	void LinkParentChildNodes(TSharedPtr<FGISQTNode> Node);
-
-	// HELPER FUNCTIONS
-	static FGISTileID ComputeParentID(const FGISTileID TileID);
-	static FGISTileID ComputeChildID(const FGISTileID TileID, int8 ChildIndex);
-	static FGISTileID ComputeParentID(const FGISQTNode* Node);
-	static FGISTileID ComputeChildID(const FGISQTNode* Node, int8 ChildIndex);
-	static int8 CalculateChildIndex(const FGISTileID TileID);
-		
-};*/
+	virtual void LinkParentChildNodes(TSharedPtr<FGISQTNode> Node) override;
+};

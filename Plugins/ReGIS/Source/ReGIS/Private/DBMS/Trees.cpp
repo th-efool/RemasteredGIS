@@ -1,87 +1,44 @@
 ﻿#include "DBMS/Trees.h"
 
-/*
-#include "D:\ThisPC\Documents\Unreal Projects\RemasteredGIS\Intermediate\Build\Win64\x64\RemasteredGISEditor\Development\UnrealEd\SharedPCH.UnrealEd.Project.ValApi.ValExpApi.Cpp20.h"
 
 
 
-TSharedPtr<FGISQTNode> QuadTree::GetNode(const FGISTileID& TileID)
+
+TSharedPtr<FGISBaseDataNode> BaseTree::GetNode(const FGISIdentifier& NodeID)
 {
-	if (auto entry = QuadTreeMap.Find(TileID.Hash))
+	if ( TSharedPtr<FGISBaseDataNode>* FoundNode = QuadTreeMap.Find(NodeID.Hash))
 	{
-		return *entry;
+		return *FoundNode;
+	}
+	else
+	{
+		return CreateNode(NodeID);
 	};
-	TSharedPtr<FGISQTNode> CreatedNode = MakeShared<FGISQTNode>();
-	CreatedNode->Initialize(TileID, CreatedNode);
-	LinkParentChildNodes(CreatedNode);
-	QuadTreeMap.Add(TileID.Hash,MoveTemp(CreatedNode)) ;
+}
+
+
+TSharedPtr<FGISBaseDataNode> BaseTree::GetParentNode(
+	const ICustomParams ParentIndexingParams)
+{
+	return GetNode(ComputeParentNodeID());
+}
+
+TSharedPtr<FGISBaseDataNode> BaseTree::GetChildNode(
+	const ICustomParams ChildIndexingParams)
+{
+	return GetNode(ComputeChildNodeID(ChildIndexingParams));
+}
+
+TSharedPtr<FGISBaseDataNode> QuadTree::CreateNode(const FGISIdentifier& NodeID)
+{
+	TSharedPtr<FGISQTNode> DerivedPtr = MakeShared<FGISQTNode>();
+	TSharedPtr<FGISBaseDataNode> CreatedNode = StaticCastSharedPtr<FGISBaseDataNode>(DerivedPtr);
+	CreatedNode->Initialize(NodeID, CreatedNode);
+	LinkParentChildNodes(DerivedPtr);
+	QuadTreeMap.Add(NodeID.Hash,MoveTemp(CreatedNode)) ;
 	return CreatedNode;
 }
 
-
-FGISTileID QuadTree::ComputeParentID(const FGISTileID TileID)
-{
-	return FGISTileID(TileID.ZoomLevel-1, floor(TileID.X*0.5) ,floor(TileID.Y*0.5) ) ;
-}
-
-FGISTileID QuadTree::ComputeChildID(const FGISTileID TileID, int8 ChildIndex)
-{
-	check(ChildIndex >= 0 && ChildIndex <= 3);
-	switch (ChildIndex)
-	{
-	case 0:
-		// top-left
-		return FGISTileID(TileID.ZoomLevel + 1, TileID.X * 2,     TileID.Y * 2);
-		break;
-	case 1:
-		// top-right
-		return FGISTileID(TileID.ZoomLevel + 1, TileID.X * 2 + 1, TileID.Y * 2);
-		break;
-	case 2:
-		// bottom-left
-		return FGISTileID(TileID.ZoomLevel + 1, TileID.X * 2,     TileID.Y * 2 + 1);
-		break;
-	case 3:
-		// bottom-right
-		return FGISTileID(TileID.ZoomLevel + 1, TileID.X * 2 + 1, TileID.Y * 2 + 1);
-		break;
-	default:
-		AutoRTFM::Unreachable();
-		return TileID;
-
-	}
-}
-
-FGISTileID QuadTree::ComputeParentID(const FGISQTNode* Node)
-{
-	return ComputeParentID(Node->TileID);
-	
-}
-
-FGISTileID QuadTree::ComputeChildID(const FGISQTNode* Node, int8 ChildIndex)
-{
-	return ComputeChildID(Node->TileID, ChildIndex);
-}
-
-int8 QuadTree::CalculateChildIndex(const FGISTileID TileID)
-{
-	return (TileID.X%2)+(TileID.Y%2)*2;
-	// even,even =Child1     odd, even = Child2
-	// even, odd =CHild3    odd, odd = Child4
-
-}
-
-
-TSharedPtr<FGISQTNode> QuadTree::GetParentNode(const TSharedPtr<FGISQTNode>& Node) 
-{
-	return GetNode(ComputeParentID(Node->TileID));
-}
-
-TSharedPtr<FGISQTNode> QuadTree::GetChildNode(const TSharedPtr<FGISQTNode>& Node,
-	const int8 ChildIndex)
-{
-	return GetNode(ComputeChildID(Node->TileID, ChildIndex));
-}
 
 void QuadTree::LinkParentChildNodes(TSharedPtr<FGISQTNode> Node)
 {
@@ -103,5 +60,5 @@ void QuadTree::LinkParentChildNodes(TSharedPtr<FGISQTNode> Node)
 	}
 	
 }
-*/
+
 

@@ -137,6 +137,7 @@ private:
 
 
 	~FLogger() = default;
+
 	
 };
 

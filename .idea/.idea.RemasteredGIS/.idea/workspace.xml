@@ -13,13 +13,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0cc98920-c020-4168-a7b2-2b2f53514b6e" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/DBMS/FGISIdentifier.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/DBMS/FGISIdentifier.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.RemasteredGIS/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.RemasteredGIS/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/DBMS/DataNodes.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/DBMS/DataNodes.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/DBMS/DataResource.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/DBMS/DataResource.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/DBMS/Trees.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/DBMS/Trees.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/GISErrorHandler.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/GISErrorHandler.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/Streaming/StaticStreaming.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/Streaming/StaticStreaming.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/DBMS/DataNodes.h" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/DBMS/DataNodes.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/DBMS/Trees.h" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/DBMS/Trees.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/GISDataType.h" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/GISDataType.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/GISErrorHandler.h" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/GISErrorHandler.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -194,7 +196,10 @@
       <workItem from="1756963160822" duration="24846000" />
       <workItem from="1757074719149" duration="3088000" />
       <workItem from="1757077919313" duration="18426000" />
-      <workItem from="1757293113400" duration="9605000" />
+      <workItem from="1757293113400" duration="10040000" />
+      <workItem from="1757708420884" duration="1203000" />
+      <workItem from="1757746738385" duration="4475000" />
+      <workItem from="1758191937800" duration="6901000" />
     </task>
     <servers />
   </component>

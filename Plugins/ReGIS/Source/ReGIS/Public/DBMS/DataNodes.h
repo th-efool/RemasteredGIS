@@ -7,11 +7,13 @@ struct FGISBaseDataNode
 {
 public:
 	virtual ~FGISBaseDataNode();
-	
+
+	FGISIdentifier NodeID;
 	TWeakPtr<FGISBaseDataNode> WeakSelf;
 	
-	inline virtual void Initialize(FGISTileID InTileID, TSharedPtr<FGISBaseDataNode> InSelf)
+	inline virtual void Initialize(FGISIdentifier InNodeIdentifier, TSharedPtr<FGISBaseDataNode> InSelf)
 	{
+		NodeID = InNodeIdentifier;
 		check(!WeakSelf.IsValid()); // prevent accidental re-assignment
 		WeakSelf = InSelf;
 	}
@@ -43,19 +45,27 @@ public:
 
 };
 
-
-struct FGISQTNode : private FGISBaseDataNode
+struct FGISTreeNode : public FGISBaseDataNode
 {
-	FGISTileID TileID;
+	public:
+	TArray<TWeakPtr<FGISBaseDataNode>> ParentNode;
+	TArray<TSharedPtr<FGISBaseDataNode>> ChildNode;
+	
 
-	inline virtual void Initialize(FGISTileID InTileID, TSharedPtr<FGISBaseDataNode> InSelf) override
+	/*
+	FORCEINLINE bool IsLeaf(){return (!ChildNode[0] && !ChildNode[1] && !ChildNode[2] && !ChildNode[3]);};
+*/
+};
+
+struct FGISQTNode : public FGISTreeNode
+{
+
+	inline virtual void Initialize(FGISIdentifier NodeIdentifier, TSharedPtr<FGISBaseDataNode> InSelf) override
 	{
-		FGISBaseDataNode::Initialize(InTileID, InSelf);
-		this->TileID = InTileID;
+		FGISBaseDataNode::Initialize(NodeIdentifier, InSelf);
 	}
 	
 	TWeakPtr<FGISBaseDataNode> ParentNode;
-	TSharedPtr<FGISQTNode> ChildNode[4];
-	FORCEINLINE bool IsLeaf(){return (!ChildNode[0] && !ChildNode[1] && !ChildNode[2] && !ChildNode[3]);};
+	TSharedPtr<FGISBaseDataNode> ChildNode[4];
 	
-};
+};a
