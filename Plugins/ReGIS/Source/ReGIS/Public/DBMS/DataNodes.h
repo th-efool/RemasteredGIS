@@ -6,7 +6,7 @@
 struct FGISBaseDataNode 
 {
 public:
-	virtual ~FGISBaseDataNode();
+	virtual ~FGISBaseDataNode()= default;
 
 	FGISIdentifier NodeID;
 	TWeakPtr<FGISBaseDataNode> WeakSelf;
@@ -50,8 +50,6 @@ struct FGISTreeNode : public FGISBaseDataNode
 	public:
 	TArray<TWeakPtr<FGISBaseDataNode>> ParentNode;
 	TArray<TSharedPtr<FGISBaseDataNode>> ChildNode;
-	
-
 	/*
 	FORCEINLINE bool IsLeaf(){return (!ChildNode[0] && !ChildNode[1] && !ChildNode[2] && !ChildNode[3]);};
 */
@@ -68,4 +66,4 @@ struct FGISQTNode : public FGISTreeNode
 	TWeakPtr<FGISBaseDataNode> ParentNode;
 	TSharedPtr<FGISBaseDataNode> ChildNode[4];
 	
-};a
+};

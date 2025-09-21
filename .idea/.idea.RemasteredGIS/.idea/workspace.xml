@@ -13,15 +13,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0cc98920-c020-4168-a7b2-2b2f53514b6e" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/DBMS/FGISIdentifier.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/DBMS/FGISIdentifier.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.RemasteredGIS/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.RemasteredGIS/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/DBMS/DataResource.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/DBMS/DataResource.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/DBMS/FGISIdentifier.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/DBMS/FGISIdentifier.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/DBMS/Trees.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/DBMS/Trees.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/DBMS/DataNodes.h" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/DBMS/DataNodes.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/DBMS/FGISIdentifier.h" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/DBMS/FGISIdentifier.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/DBMS/Trees.h" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/DBMS/Trees.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/GISDataType.h" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/GISDataType.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/GISErrorHandler.h" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/GISErrorHandler.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/GISStreamingComponent.h" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/GISStreamingComponent.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/GISViewportActor.h" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/GISViewportActor.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -35,6 +34,8 @@
     <setting file="file://C:/Program Files/Epic Games/UE_5.6/Engine/Source/Editor/DeviceProfileServices/Private/CheckAndroidDeviceProfileCommandlet.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://C:/Program Files/Epic Games/UE_5.6/Engine/Source/Runtime/Core/Public/Misc/AssertionMacros.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://C:/Program Files/Epic Games/UE_5.6/Engine/Source/Runtime/Core/Public/Templates/SharedPointer.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://C:/Program Files/Epic Games/UE_5.6/Engine/Source/Runtime/Core/Public/Templates/UnrealTemplate.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://C:/Program Files/Epic Games/UE_5.6/Engine/Source/Runtime/CoreUObject/Public/Templates/Casts.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://C:/Program Files/Epic Games/UE_5.6/Engine/Source/Runtime/CoreUObject/Public/UObject/Object.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://C:/Program Files/Epic Games/UE_5.6/Engine/Source/Runtime/Renderer/Private/GlobalDistanceField.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://C:/Program Files/Epic Games/UE_5.6/Engine/Source/Runtime/Renderer/Private/RayTracing/RayTracingDebug.cpp" root0="FORCE_HIGHLIGHTING" />
@@ -199,7 +200,8 @@
       <workItem from="1757293113400" duration="10040000" />
       <workItem from="1757708420884" duration="1203000" />
       <workItem from="1757746738385" duration="4475000" />
-      <workItem from="1758191937800" duration="6901000" />
+      <workItem from="1758191937800" duration="7243000" />
+      <workItem from="1758466698956" duration="12413000" />
     </task>
     <servers />
   </component>

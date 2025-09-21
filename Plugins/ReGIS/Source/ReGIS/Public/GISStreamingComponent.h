@@ -17,9 +17,9 @@ class REGIS_API UGISStreamingComponent : public UActorComponent
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "StreamingConfig")
 	FGISStreamingConfig InStreamingConfig;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "StreamingConfig")
+	/*UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "StreamingConfig")*/
 	FGISTileID InCenterTile;
-	
+	// CUSTOM WAY TO FEED IN WITHOUT IT BEING AN UPROPERTY	
 	
 
 public:	

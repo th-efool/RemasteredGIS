@@ -46,7 +46,6 @@ public:
 
 	// Tile Data
 	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Tile")
 	FGISTileID CenterTile{ 14,100,100 };
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "StreamingConfig")

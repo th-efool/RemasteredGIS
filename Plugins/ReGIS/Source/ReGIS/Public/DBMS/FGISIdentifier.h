@@ -1,12 +1,37 @@
 ﻿#pragma once
+#include "FGISIdentifier.generated.h"
 
 struct FGISIdentifier
 {
+	FGISIdentifier();
+	FGISIdentifier(int64 InHash);;
+	virtual ~FGISIdentifier() = default;
+	
 	int64 Hash;
 };
 
+struct FGISTreeIdentifier : public FGISIdentifier
+{
+	static constexpr int8 MaxChildren = 1;
+	static constexpr int8 MaxParents  = 1;
 
-struct FGISTileID :FGISIdentifier {
+	virtual int8 GetMaxChildren() const { return MaxChildren;}
+	virtual int8 GetMaxParents()  const { return MaxParents;}
+	
+	virtual int8 CalculateTileIntIndexAsChild() const = 0;
+	virtual int8 CalculateTileIntIndexAsParent() const = 0;
+	virtual FGISIdentifier ParentTileID(int8 ParentIndex) =0;
+	virtual FGISIdentifier ChildTileID(int8 ChildIndex) = 0;
+
+};
+
+struct FGISTileID :FGISTreeIdentifier {
+	static constexpr int8 MaxChildren = 4;
+	static constexpr int8 MaxParents  = 1;
+
+	virtual int8 GetMaxChildren() const override { return MaxChildren;}
+	virtual int8 GetMaxParents()  const override { return MaxParents;}
+	
 	union {
 		struct {
 			int8 ZoomLevel : 8;
@@ -15,61 +40,19 @@ struct FGISTileID :FGISIdentifier {
 		};
 	};
 
-	FGISTileID()
-		: FGISTileID(14,256,256)
-	{
-	}
+	FGISTileID();
 
-	FGISTileID(int8 InZoomLevel, int32 InX, int32 InY)
-		: ZoomLevel(InZoomLevel), X(InX), Y(InY)
-	{
-		Hash = ((uint64)ZoomLevel << 56) | ((uint64)X << 28) | (uint64)Y;
-	}
-	FGISTileID(uint64 InHash)
-	{
-		Hash = InHash;
-		ZoomLevel = (InHash >> 56) & 0xFF;
-		X = (InHash >> 28) & 0xFFFFFF;
-		Y = InHash & 0xFFFFFF;
-	}
+	FGISTileID(int8 InZoomLevel, int32 InX, int32 InY);
 
-	FORCEINLINE int8 CalculateTileIntIndexAsChild() const{
-		return (X%2)+(Y%2)*2;
-		// even,even =Child1     odd, even = Child2
-		// even, odd =CHild3    odd, odd = Child4
-	};
+	FGISTileID(uint64 InHash);
 
-	FORCEINLINE FGISTileID ParentTileID()
-	{
-		return FGISTileID(ZoomLevel-1, floor(X*0.5) ,floor(Y*0.5) );
-	}
+	virtual int8 CalculateTileIntIndexAsChild() const override;;
 
-	FORCEINLINE FGISTileID CalculateChildrentHash(int8 ChildIndex)
-	{
-		check(ChildIndex >= 0 && ChildIndex <= 3);
-		switch (ChildIndex)
-		{
-		case 0:
-			// top-left
-			return FGISTileID(ZoomLevel + 1, X * 2,     Y * 2);
-			break;
-		case 1:
-			// top-right
-			return FGISTileID(ZoomLevel + 1, X * 2 + 1, Y * 2);
-			break;
-		case 2:
-			// bottom-left
-			return FGISTileID(ZoomLevel + 1, X * 2,     Y * 2 + 1);
-			break;
-		case 3:
-			// bottom-right
-			return FGISTileID(ZoomLevel + 1, X * 2 + 1, Y * 2 + 1);
-			break;
-		default:
-			return FGISTileID();
-		}
-	}
+	virtual int8 CalculateTileIntIndexAsParent() const override;;
 
+	virtual FGISIdentifier ParentTileID(int8 ParentIndex) override;
+
+	virtual FGISIdentifier ChildTileID(int8 ChildIndex) override;
 };
 
 USTRUCT(BlueprintType)
@@ -82,5 +65,4 @@ struct FGISStreamingConfig
 	int8 GridLength = 4;
 	UPROPERTY(EditAnywhere)
 	int8 CameraGridLength = 2;
-
 };
