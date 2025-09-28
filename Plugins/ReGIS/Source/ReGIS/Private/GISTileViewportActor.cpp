@@ -34,6 +34,7 @@ void AGISTileViewportActor::PostEditChangeProperty(FPropertyChangedEvent& Proper
 void AGISTileViewportActor::BeginPlay()
 {
 	Super::BeginPlay();
+	
 }
 
 // Called every frame

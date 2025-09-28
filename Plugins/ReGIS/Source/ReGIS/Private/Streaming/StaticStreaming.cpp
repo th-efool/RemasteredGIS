@@ -34,7 +34,8 @@ StaticStreaming::StaticStreaming(
 	{
 		VisibleTiles.Add(static_cast<UTexture2D*>(InitFallbackStaticTileFetcher->GetFallbackResource()));
 	}
-
+	UpdateAtlas();
+	UpdateStreaming();
 	
 }
 
@@ -46,8 +47,8 @@ void StaticStreaming::SetVisibleTiles(const TArray<UTexture2D*>& InTiles)
 
 void StaticStreaming::SetCameraOffset(float OffsetX, float OffsetY)
 {
-	CameraOffsetX = OffsetX;
-	CameraOffsetY = OffsetY;
+	CameraOffsetX  = OffsetX;
+	CameraOffsetY  = OffsetY;
 	UpdateStreaming();
 }
 
@@ -73,6 +74,9 @@ void StaticStreaming::UpdateAtlas()
 
 void StaticStreaming::UpdateStreaming()
 {
+    if (!StreamingTexture || !StreamingTexture->GetPlatformData() || StreamingTexture->GetPlatformData()->Mips.Num() == 0)
+        return; 
+        
 	GIS_FATAL_MSG(CameraOffsetX<= 1 || CameraOffsetX>= -1 || CameraOffsetY<=1 || CameraOffsetY>=-1 ,
 	FString::Printf(TEXT("Pixel Offset exceededed max offset! X=%f Y=%f"),
 	 CameraOffsetX, CameraOffsetY));

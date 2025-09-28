@@ -18,6 +18,7 @@ AGISStaticTileViewportActor::AGISStaticTileViewportActor()
 void AGISStaticTileViewportActor::BeginPlay()
 {
 	Super::BeginPlay();
+	InitStaticStreaming();
 
 }
 
@@ -25,8 +26,9 @@ void AGISStaticTileViewportActor::BeginPlay()
 void AGISStaticTileViewportActor::Tick(float DeltaTime)  
 {  
 	Super::Tick(DeltaTime);  
-	// somewhere in your actor
+
 	TestCameraMovement();
+	
 	
   
 }
@@ -43,7 +45,8 @@ void AGISStaticTileViewportActor::InitStaticStreaming()
 		DynamicMaterial->SetTextureParameterValue("BaseColor",StaticStreamer->GetStreamingTexture());
 		TileMesh->SetMaterial(0, DynamicMaterial);
 	}
-	
+	StaticStreamer->UpdateAtlas();
+	StaticStreamer->UpdateStreaming();
 	
 }
 

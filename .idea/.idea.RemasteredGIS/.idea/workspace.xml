@@ -13,32 +13,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="967cc7e2-8a47-44aa-ae05-a3fa208b46bf" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.RemasteredGIS/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.RemasteredGIS/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.RemasteredGIS/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.RemasteredGIS/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/API/GISStaticTileFetcher.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/API/GISStaticTileFetcher.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/DBMS/DataNodes.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/DBMS/DataNodes.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/DataManager.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/DBMS/DataManager.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/GISConversionEngine.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/Utils/GISConversionEngine.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/GISDataType.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/Utils/GISDataType.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/GISErrorHandler.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/Utils/GISErrorHandler.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/GISQuadTreeManager.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/GISStreamingComponent.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/GISViewportActor.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/MyGISViewportActor.uasset" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/__ExternalActors__/TestMap/3/28/NTLNQ856XNBQ428VSDXU42.uasset" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/__ExternalActors__/TestMap/5/BI/WZB9NG52TZDOY4FKI40P2N.uasset" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/__ExternalActors__/TestMap/F/0U/D3IKU9DDSGZWU7E9QCGC32.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/__ExternalActors__/TestMap/F/0U/D3IKU9DDSGZWU7E9QCGC32.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/GISStaticTileViewportActor.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/GISStaticTileViewportActor.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/GISTileViewportActor.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/GISTileViewportActor.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/Streaming/StaticStreaming.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/Streaming/StaticStreaming.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/API/GISAPIBase.h" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/API/GISAPIBase.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/API/GISStaticTileFetcher.h" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/API/GISStaticTileFetcher.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/DBMS/DataNodes.h" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/DBMS/DataNodes.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/DBMS/FGISIdentifier.h" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/DBMS/FGISIdentifier.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/DBMS/Trees.h" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/DBMS/Trees.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/DataManager.h" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/DBMS/DataManager.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/GISConversionEngine.h" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/Utils/GISConversionEngine.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/GISDataType.h" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/Utils/GISDataType.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/GISErrorHandler.h" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/Utils/GISErrorHandler.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/GISQuadTreeManager.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/GISStreamingComponent.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/GISViewportActor.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/GISStaticTileViewportActor.h" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/GISStaticTileViewportActor.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/Streaming/StaticStreaming.h" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/Streaming/StaticStreaming.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/RemasteredGIS.uproject" beforeDir="false" afterPath="$PROJECT_DIR$/RemasteredGIS.uproject" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -196,7 +180,8 @@
       <workItem from="1759044390598" duration="425000" />
       <workItem from="1759045707391" duration="310000" />
       <workItem from="1759047410461" duration="2035000" />
-      <workItem from="1759053986721" duration="9562000" />
+      <workItem from="1759053986721" duration="11310000" />
+      <workItem from="1759066831793" duration="649000" />
     </task>
     <servers />
   </component>
@@ -204,6 +189,10 @@
     <option name="version" value="3" />
   </component>
   <component name="UnityProjectConfiguration" hasMinimizedUI="false" />
+  <component name="UnrealLogPanelSettings">
+    <option name="showMessages" value="false" />
+    <option name="showWarnings" value="false" />
+  </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
   </component>

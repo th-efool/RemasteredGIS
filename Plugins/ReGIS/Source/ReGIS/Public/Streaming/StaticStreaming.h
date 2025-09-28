@@ -1,5 +1,4 @@
 ﻿#pragma once
-#include "CoreMinimal.h"
 class GISStaticTileFetcher;
 
 class StaticStreaming
@@ -18,7 +17,8 @@ public:
 	// ---- Object Output Accessors ----
 	UTexture2D* GetStreamingTexture() const { return StreamingTexture; }
 
-private:
+
+public:
 	// ---- Triggers ----
 	// 1) Rebuild/update atlas after visible tiles changed
 	void UpdateAtlas();
@@ -32,9 +32,10 @@ private:
 	// internal
 	TArray<FColor> AtlasTileData;
 	UTexture2D* StreamingTexture;
-	float CameraOffsetX = 0.f;
-	float CameraOffsetY = 0.f;
 
+
+	float CameraOffsetX = 0.1f;
+	float CameraOffsetY = 0.1f;
 
 	// ---- Private helpers ----
 	void ExtractPixelsFromTexture(UTexture2D* Texture, TArray<FColor>& OutPixels);

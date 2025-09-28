@@ -37,7 +37,7 @@ public:
 	UStaticMeshComponent* TileMesh;
 	AGISStaticTileViewportActor();
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "StreamingConfig")    
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "StreamingConfig")    
 	FGISStreamingConfig InStreamingConfig;  
 	  
 	FGISTileID InCenterTile;  
