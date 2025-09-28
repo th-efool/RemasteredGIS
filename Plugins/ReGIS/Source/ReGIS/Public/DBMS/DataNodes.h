@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include "DataResource.h"
-#include "GISDataType.h"
+#include "Utils/GISDataType.h"
 
 
 struct FGISBaseDataNode 

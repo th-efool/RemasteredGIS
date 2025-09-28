@@ -1,13 +1,13 @@
 ﻿#include "Streaming/StaticStreaming.h"
 
-#include "GISErrorHandler.h"
+#include "Utils/GISErrorHandler.h"
 #include "API/GISStaticTileFetcher.h"
 
 
-StaticStreaming::StaticStreaming() 
+/*StaticStreaming::StaticStreaming() 
 	: StaticStreaming(2, 2, 4, 4, 256, 256) // Default constructor with default values
 {
-}
+}*/
 
 StaticStreaming::StaticStreaming(
 	int8 InCameraLengthX, int8 InCameraLengthY, 
@@ -28,18 +28,31 @@ StaticStreaming::StaticStreaming(
 	//Reason: "0.5" percieved brightness ain't half max intensity 1 in reality, its close to '0.22'
 	StreamingTexture->UpdateResource();
 	VisibleTiles.Empty(); // reset before filling
-	StaticTileFetcher= new GISStaticTileFetcher(); 
+	InitFallbackStaticTileFetcher= new GISStaticTileFetcher();
 
 	for (int32 i = 0; i < AtlasTileCountX*AtlasTileCountY; i++)
 	{
-		VisibleTiles.Add(static_cast<UTexture2D*>(StaticTileFetcher->GetFallbackResource()));
+		VisibleTiles.Add(static_cast<UTexture2D*>(InitFallbackStaticTileFetcher->GetFallbackResource()));
 	}
 
 	
 }
 
+void StaticStreaming::SetVisibleTiles(const TArray<UTexture2D*>& InTiles)
+{
+	VisibleTiles = InTiles;
+	UpdateAtlas();
+}
 
-void StaticStreaming::BuildUpdateAtlas()
+void StaticStreaming::SetCameraOffset(float OffsetX, float OffsetY)
+{
+	CameraOffsetX = OffsetX;
+	CameraOffsetY = OffsetY;
+	UpdateStreaming();
+}
+
+
+void StaticStreaming::UpdateAtlas()
 {
 	GIS_HANDLE(VisibleTiles.Num() == AtlasTileCountX*AtlasTileCountY,FLoggerLevel::Warn);
 	
@@ -55,6 +68,57 @@ void StaticStreaming::BuildUpdateAtlas()
 		AtlasPixelCountY, AtlasTileCountX, AtlasTileCountY,
 		TileSizeX, TileSizeY, TilePixelCount );
 }
+
+
+
+void StaticStreaming::UpdateStreaming()
+{
+	GIS_FATAL_MSG(CameraOffsetX<= 1 || CameraOffsetX>= -1 || CameraOffsetY<=1 || CameraOffsetY>=-1 ,
+	FString::Printf(TEXT("Pixel Offset exceededed max offset! X=%f Y=%f"),
+	 CameraOffsetX, CameraOffsetY));
+	
+	int PixelYOffset = (AtlasPixelCountY-CameraPixelCountY)*0.5*CameraOffsetY;
+	int PixelXOffset = (AtlasPixelCountX-CameraPixelCountX)*0.5*CameraOffsetX;
+
+	
+	const int CenterPixelY = AtlasPixelCountY/2;
+	const int CenterPixelX = AtlasPixelCountX/2;
+
+	const int CenteredCameraFrameTopLeftPixelX = CenterPixelX - CameraPixelCountX*0.5;
+	const int CenteredCameraFrameTopLeftPixelY = CenterPixelY - CameraPixelCountY*0.5;
+
+	
+	int BeginXPixel = CenteredCameraFrameTopLeftPixelX + PixelXOffset;
+	int BeginYPixel = CenteredCameraFrameTopLeftPixelY + PixelYOffset;
+
+	GIS_HANDLE_IF(BeginXPixel >= 0 || BeginXPixel <= AtlasPixelCountX)
+	GIS_HANDLE_IF(BeginYPixel >= 0 || BeginYPixel <= AtlasPixelCountY)
+	
+	GIS_FATAL_MSG(BeginXPixel + CameraPixelCountX <= AtlasPixelCountX,
+	FString::Printf(TEXT("Atlas bounds exceeded! BeginXPixel=%d CameraPixelCountX=%d AtlasPixelCountX=%d"),
+	BeginXPixel, CameraPixelCountX, AtlasPixelCountX));
+	
+	GIS_FATAL_MSG(BeginYPixel + CameraPixelCountY <= AtlasPixelCountY,
+	FString::Printf(TEXT("Atlas bounds exceeded! BeginXPixel=%d CameraPixelCountX=%d AtlasPixelCountX=%d"),
+	BeginXPixel, CameraPixelCountY, AtlasPixelCountY));
+	
+	TArray<FColor> TempStreamingData;
+	TempStreamingData.SetNumUninitialized(AtlasPixelCountX * AtlasPixelCountY);
+
+
+	for (int i = BeginYPixel; (i - BeginYPixel) < CameraPixelCountY; ++i)
+	{
+		FColor* SrcDataPtr = AtlasTileData.GetData() + i * AtlasPixelCountX + BeginXPixel;
+		FColor* DstDataPtr = TempStreamingData.GetData() + (i-BeginYPixel) * CameraPixelCountX;
+		memcpy(DstDataPtr,SrcDataPtr,CameraPixelCountX*sizeof(FColor) );
+	}
+
+	void* mipBuffer = StreamingTexture->GetPlatformData()->Mips[0].BulkData.Lock(LOCK_READ_WRITE);
+	memcpy(mipBuffer,TempStreamingData.GetData(),CameraPixelCountX*CameraPixelCountY*sizeof(FColor));
+	StreamingTexture->GetPlatformData()->Mips[0].BulkData.Unlock();
+	StreamingTexture->UpdateResource();
+}
+
 
 void StaticStreaming::ExtractPixelsFromTexture(UTexture2D* Texture, TArray<FColor>& OutPixels)
 {
@@ -151,53 +215,5 @@ void StaticStreaming::ConvertRowArrayToTileContiguous(TArray<FColor>& ContigousR
 	// ONE ARRAY WAS GARBAGE, ONE WAS MEANIGFUL which was garbage which was meanigful just got reversed
 }
 
-
-void StaticStreaming::BuildUpdateStreaming(float CameraOffsetX, float CameraOffsetY)
-{
-	GIS_FATAL_MSG(CameraOffsetX<= 1 || CameraOffsetX>= -1 || CameraOffsetY<=1 || CameraOffsetY>=-1 ,
-	FString::Printf(TEXT("Pixel Offset exceededed max offset! X=%f Y=%f"),
-	 CameraOffsetX, CameraOffsetY));
-	
-	int PixelYOffset = (AtlasPixelCountY-CameraPixelCountY)*0.5*CameraOffsetY;
-	int PixelXOffset = (AtlasPixelCountX-CameraPixelCountX)*0.5*CameraOffsetX;
-
-	
-	const int CenterPixelY = AtlasPixelCountY/2;
-	const int CenterPixelX = AtlasPixelCountX/2;
-
-	const int CenteredCameraFrameTopLeftPixelX = CenterPixelX - CameraPixelCountX*0.5;
-	const int CenteredCameraFrameTopLeftPixelY = CenterPixelY - CameraPixelCountY*0.5;
-
-	
-	int BeginXPixel = CenteredCameraFrameTopLeftPixelX + PixelXOffset;
-	int BeginYPixel = CenteredCameraFrameTopLeftPixelY + PixelYOffset;
-
-	GIS_HANDLE_IF(BeginXPixel >= 0 || BeginXPixel <= AtlasPixelCountX)
-	GIS_HANDLE_IF(BeginYPixel >= 0 || BeginYPixel <= AtlasPixelCountY)
-	
-	GIS_FATAL_MSG(BeginXPixel + CameraPixelCountX <= AtlasPixelCountX,
-	FString::Printf(TEXT("Atlas bounds exceeded! BeginXPixel=%d CameraPixelCountX=%d AtlasPixelCountX=%d"),
-	BeginXPixel, CameraPixelCountX, AtlasPixelCountX));
-	
-	GIS_FATAL_MSG(BeginYPixel + CameraPixelCountY <= AtlasPixelCountY,
-	FString::Printf(TEXT("Atlas bounds exceeded! BeginXPixel=%d CameraPixelCountX=%d AtlasPixelCountX=%d"),
-	BeginXPixel, CameraPixelCountY, AtlasPixelCountY));
-	
-	TArray<FColor> TempStreamingData;
-	TempStreamingData.SetNumUninitialized(AtlasPixelCountX * AtlasPixelCountY);
-
-
-	for (int i = BeginYPixel; (i - BeginYPixel) < CameraPixelCountY; ++i)
-	{
-		FColor* SrcDataPtr = AtlasTileData.GetData() + i * AtlasPixelCountX + BeginXPixel;
-		FColor* DstDataPtr = TempStreamingData.GetData() + (i-BeginYPixel) * CameraPixelCountX;
-		memcpy(DstDataPtr,SrcDataPtr,CameraPixelCountX*sizeof(FColor) );
-	}
-
-	void* mipBuffer = StreamingTexture->GetPlatformData()->Mips[0].BulkData.Lock(LOCK_READ_WRITE);
-	memcpy(mipBuffer,TempStreamingData.GetData(),CameraPixelCountX*CameraPixelCountY*sizeof(FColor));
-	StreamingTexture->GetPlatformData()->Mips[0].BulkData.Unlock();
-	StreamingTexture->UpdateResource();
-}
 
 

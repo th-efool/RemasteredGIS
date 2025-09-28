@@ -1,0 +1,11 @@
+/.git
+/.github
+/.idea
+/.vs
+/.vscode
+/Content
+/DerivedDataCache
+/Intermediate
+/Saved
+/Plugins/ReGIS/Content
+/Plugins/ReGIS/Intermediate

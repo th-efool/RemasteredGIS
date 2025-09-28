@@ -35,3 +35,21 @@ struct FGISPoint
 
 
 
+USTRUCT(BlueprintType)
+struct FGISStreamingConfig
+{
+	GENERATED_BODY();
+	UPROPERTY(EditAnywhere)
+	int32 TileSizeX = 256;
+	UPROPERTY(EditAnywhere)
+	int32 TileSizeY = 256;
+	UPROPERTY(EditAnywhere)
+	int8 GridLengthX = 4;
+	UPROPERTY(EditAnywhere)
+	int8 GridLengthY = 4;
+	UPROPERTY(EditAnywhere)
+	int8 CameraGridLengthX = 2;
+	UPROPERTY(EditAnywhere)
+	int8 CameraGridLengthY = 2;
+};
+

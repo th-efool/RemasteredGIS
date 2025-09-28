@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include "GISAPIBase.h"
-#include "GISDataType.h"
+#include "Utils/GISDataType.h"
 
 class GISStaticTileFetcher : GISAPIBase
 {

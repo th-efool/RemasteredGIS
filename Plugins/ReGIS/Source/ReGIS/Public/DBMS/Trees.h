@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include "DataNodes.h"
-#include "GISDataType.h"
+#include "Utils/GISDataType.h"
 
 class BaseTree
 {

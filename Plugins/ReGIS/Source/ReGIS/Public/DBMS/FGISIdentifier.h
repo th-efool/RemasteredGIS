@@ -1,5 +1,4 @@
 ﻿#pragma once
-#include "FGISIdentifier.generated.h"
 
 struct FGISIdentifier
 {
@@ -53,16 +52,4 @@ struct FGISTileID :FGISTreeIdentifier {
 	virtual FGISIdentifier ParentTileID(int8 ParentIndex) override;
 
 	virtual FGISIdentifier ChildTileID(int8 ChildIndex) override;
-};
-
-USTRUCT(BlueprintType)
-struct FGISStreamingConfig
-{
-	GENERATED_BODY();
-	UPROPERTY(EditAnywhere)
-	int32 TileSize = 256;
-	UPROPERTY(EditAnywhere)
-	int8 GridLength = 4;
-	UPROPERTY(EditAnywhere)
-	int8 CameraGridLength = 2;
 };
