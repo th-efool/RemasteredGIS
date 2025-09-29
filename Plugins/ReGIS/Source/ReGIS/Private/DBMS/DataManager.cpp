@@ -3,3 +3,55 @@
 
 #include "DBMS/DataManager.h"
 
+
+
+UDataManager::UDataManager()
+{
+	InitializeComponents();
+}
+
+
+void UDataManager::GetStaticTile(FGISTileID TileID, TFunction<void(UTexture2D*)> callback)
+{
+	bool NodeAlreadyThere = false;
+	TSharedPtr<FGISBaseDataNode> Node = StaticTileQT->GetNode(TileID, NodeAlreadyThere);
+	if (NodeAlreadyThere)
+	{
+		if (Node->ResourceFetched)
+		{
+			callback(Node->GetResource<UTexture2D>());
+		}
+		else
+		{
+			// request in-flight: queue callback
+			PendingCallbacks.FindOrAdd(TileID.Hash).Add(callback);
+		}
+		return;
+	}
+	
+	Node->SetResource(StaticTileFetcher->GetMarkedDebugResource(FColor::White));
+	PendingCallbacks.FindOrAdd(TileID.Hash).Add(callback);
+
+	ParamsStaticTileFetcher StaticTileParams = ParamsStaticTileFetcher(TileID);
+	StaticTileFetcher->MakeApiCall(StaticTileParams, [Node, callback, TileID, this](void* RawData)
+	{
+		UTexture2D* Texture = static_cast<UTexture2D*>(RawData);
+		Node->SetResource(Texture);
+		Node->ResourceFetched = true;
+		if (TArray<TFunction<void(UTexture2D*)>>* Callbacks = PendingCallbacks.Find(TileID.Hash))
+		{
+			for (auto& CB : *Callbacks)
+			{
+				CB(Texture);
+			}
+			PendingCallbacks.Remove(TileID.Hash);
+		}
+		callback(Texture);
+	});
+}
+
+void UDataManager::InitializeComponents()
+{
+	StaticTileFetcher = new GISStaticTileFetcher();
+	StaticTileQT = new QuadTree();
+}

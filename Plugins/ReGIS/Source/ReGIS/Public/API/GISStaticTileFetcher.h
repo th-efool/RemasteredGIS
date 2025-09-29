@@ -2,17 +2,25 @@
 #include "GISAPIBase.h"
 #include "Utils/GISDataType.h"
 
+struct ParamsStaticTileFetcher : ICustomParams
+{
+	inline ParamsStaticTileFetcher(FGISTileID TileID){ this->TileID = TileID; }
+	FGISTileID TileID;
+};
+
+
 class GISStaticTileFetcher : GISAPIBase
 {
 public:
-	GISStaticTileFetcher();
-	virtual ~GISStaticTileFetcher();
-	
+	virtual void MakeApiCall(ICustomParams& Params, TFunction<void(void*)> callback) override;
+
 private:
 	virtual FString buildAPIURL(ICustomParams& Params) override;
 	virtual void HandleAPIResponse(FHttpResponsePtr Response, TFunction<void(void*)> callback) override;
 public: 
 	virtual void* GetFallbackResource() override;
-
+	static UTexture2D* GetMarkedDebugResource(FColor FillColor);
+	GISStaticTileFetcher();
+	virtual ~GISStaticTileFetcher();
 };
 

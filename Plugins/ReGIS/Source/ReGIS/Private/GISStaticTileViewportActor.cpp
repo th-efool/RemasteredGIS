@@ -7,7 +7,6 @@
 
 AGISStaticTileViewportActor::AGISStaticTileViewportActor()
 {
-  
 	TileMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("TileMesh"));  
 	TileMesh->SetupAttachment(RootSceneComponent);  
 	TileMesh->SetWorldScale3D(FVector(5,5,1));  

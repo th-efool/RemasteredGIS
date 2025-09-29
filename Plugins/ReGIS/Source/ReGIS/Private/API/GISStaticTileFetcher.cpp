@@ -6,19 +6,7 @@
 #include "Interfaces/IHttpResponse.h"
 
 
-struct ParamsStaticTileFetcher : ICustomParams
-{
-	FGISTileID TileID;
-};
 
-
-GISStaticTileFetcher::GISStaticTileFetcher()
-{
-}
-
-GISStaticTileFetcher::~GISStaticTileFetcher()
-{
-}
 
 
 
@@ -79,10 +67,43 @@ void* GISStaticTileFetcher::GetFallbackResource()
 	return static_cast<void*>(FallbackTexture);
 }
 
+UTexture2D* GISStaticTileFetcher::GetMarkedDebugResource(FColor FillColor)
+{
+	UTexture2D* DebugTexture = UTexture2D::CreateTransient(256, 256, PF_B8G8R8A8);
+	DebugTexture->MipGenSettings = TMGS_NoMipmaps;
+	DebugTexture->SRGB = true;
+	
+	
+	TArray<FColor> Pixels;
+	Pixels.Init(FillColor, 256 * 256);
+
+	void* TextureDataBuffer = DebugTexture->GetPlatformData()->Mips[0].BulkData.Lock(LOCK_READ_WRITE);
+	FMemory::Memcpy(TextureDataBuffer, Pixels.GetData(), Pixels.Num() * sizeof(FColor));
+	DebugTexture->GetPlatformData()->Mips[0].BulkData.Unlock();
+
+	DebugTexture->UpdateResource();
+	DebugTexture->AddToRoot();
+	return DebugTexture;
+}
+
+void GISStaticTileFetcher::MakeApiCall(ICustomParams& Params, TFunction<void(void*)> callback)
+{
+	GISAPIBase::MakeApiCall(Params, callback);
+}
+
 FString GISStaticTileFetcher::buildAPIURL(ICustomParams& Params)
 {
 	ParamsStaticTileFetcher StaticTileParams = static_cast<ParamsStaticTileFetcher&>(Params);
 	FString AccessToken = TEXT("pk.eyJ1IjoiYWdyaW1zaW5naHgiLCJhIjoiY21ieTk4dTk3MWtpZTJqcXVvcnVicDJhciJ9.k5ZiiC0KNvTaNIzI7uo7lA"); 
 	return FString::Printf(TEXT("https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/256/%d/%d/%d?access_token=%s"),
 		StaticTileParams.TileID.ZoomLevel, StaticTileParams.TileID.X, StaticTileParams.TileID.Y, *AccessToken);
+}
+
+
+GISStaticTileFetcher::GISStaticTileFetcher()
+{
+}
+
+GISStaticTileFetcher::~GISStaticTileFetcher()
+{
 }

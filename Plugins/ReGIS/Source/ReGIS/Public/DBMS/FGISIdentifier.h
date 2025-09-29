@@ -7,6 +7,7 @@ struct FGISIdentifier
 	virtual ~FGISIdentifier() = default;
 	
 	int64 Hash;
+	
 };
 
 struct FGISTreeIdentifier : public FGISIdentifier

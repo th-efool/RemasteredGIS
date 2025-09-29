@@ -15,7 +15,8 @@ public:
 	GISAPIBase();
 	virtual ~GISAPIBase();
 
-	void MakeApiCall(ICustomParams& Params, TFunction<void(void*)> callback);
+public:
+	virtual void MakeApiCall(ICustomParams& Params, TFunction<void(void*)> callback);
 	TArray<TSharedRef<IHttpRequest>> ActiveRequests;
 	TMap<FHttpRequestPtr,TFunction<void(void*)> > PendingCallbacks;
 

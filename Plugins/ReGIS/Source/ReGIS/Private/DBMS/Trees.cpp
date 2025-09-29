@@ -4,26 +4,31 @@
 
 
 
-TSharedPtr<FGISBaseDataNode> BaseTree::GetNode(const FGISIdentifier& NodeID)
+TSharedPtr<FGISBaseDataNode> BaseTree::GetNode(const FGISIdentifier& NodeID, bool& Out_NewNodeCreate)
 {
 	if ( TSharedPtr<FGISBaseDataNode>* FoundNode = TreeMap.Find(NodeID.Hash))
 	{
+		Out_NewNodeCreate = false;
 		return *FoundNode;
 	}
 	else
 	{
+		Out_NewNodeCreate = true;
 		return CreateNode(NodeID);
 	};
 }
 
 
+
+
 TSharedPtr<FGISBaseDataNode> BaseTree::GetParentNode(TSharedPtr<FGISBaseDataNode> Node,
-	const int8 ParentIndex)
+                                                     const int8 ParentIndex)
 {
 	FGISIdentifier NodeID = Node->NodeID;
 	FGISTreeIdentifier& TreeCastedNodeID = static_cast<FGISTreeIdentifier&>(NodeID);
 	FGISIdentifier ParentID = TreeCastedNodeID.ParentTileID(ParentIndex);
-	return GetNode(ParentID);
+	bool Out_NewNodeCreate;
+	return GetNode(ParentID, Out_NewNodeCreate);
 }
 
 TSharedPtr<FGISBaseDataNode> BaseTree::GetChildNode(TSharedPtr<FGISBaseDataNode> Node,
@@ -32,7 +37,8 @@ TSharedPtr<FGISBaseDataNode> BaseTree::GetChildNode(TSharedPtr<FGISBaseDataNode>
 	FGISIdentifier NodeID = Node->NodeID;
 	FGISTreeIdentifier& TreeCastedNodeID = static_cast<FGISTreeIdentifier&>(NodeID);
 	FGISIdentifier ChildID = TreeCastedNodeID.ParentTileID(ChildIndex);
-	return GetNode(ChildID);
+	bool Out_NewNodeCreate;
+	return GetNode(ChildID,Out_NewNodeCreate);
 }
 
 TSharedPtr<FGISBaseDataNode> BaseTree::CreateNode(const FGISIdentifier& NodeID)
@@ -88,13 +94,6 @@ void BaseTree::LinkParentChildNodes(TSharedPtr<FGISTreeNode> Node)
 }
 
 
-BaseTree::~BaseTree()
-{
-}
-
-QuadTree::~QuadTree()
-{
-}
 
 
 TSharedPtr<FGISBaseDataNode> BaseTree::PostCreateNode(TSharedPtr<FGISBaseDataNode>& CreatedNode,
@@ -108,6 +107,7 @@ TSharedPtr<FGISBaseDataNode> BaseTree::PostCreateNode(TSharedPtr<FGISBaseDataNod
 
 TSharedPtr<FGISBaseDataNode> QuadTree::CreateNode(const FGISIdentifier& NodeID)
 {
+	BaseTree::CreateNode(NodeID);
 	TSharedPtr<FGISQTNode> DerivedPtr = MakeShared<FGISQTNode>();
 	TSharedPtr<FGISTreeNode> TreeNode = StaticCastSharedPtr<FGISTreeNode>(DerivedPtr);
 	TSharedPtr<FGISBaseDataNode> CreatedNode = StaticCastSharedPtr<FGISBaseDataNode>(DerivedPtr);

@@ -7,8 +7,7 @@ class BaseTree
 public:
 	TMap<uint64,TSharedPtr<FGISBaseDataNode>> TreeMap;
 	
-	TSharedPtr<FGISBaseDataNode> GetNode(const FGISIdentifier& NodeID); 
-public: 
+	TSharedPtr<FGISBaseDataNode> GetNode(const FGISIdentifier& NodeID, bool& Out_NewNodeCreate); 
 	TSharedPtr<FGISBaseDataNode> GetParentNode(TSharedPtr<FGISBaseDataNode> Node,
 	const int8 ParentIndex);
 	TSharedPtr<FGISBaseDataNode> GetChildNode(TSharedPtr<FGISBaseDataNode> Node,
@@ -18,7 +17,7 @@ protected:
 	virtual TSharedPtr<FGISBaseDataNode> CreateNode(const FGISIdentifier& NodeID) =0;
 	TSharedPtr<FGISBaseDataNode> PostCreateNode(TSharedPtr<FGISBaseDataNode>& CreatedNode,
 		const FGISIdentifier& NodeID, TSharedPtr<FGISTreeNode>& TreeNode);
-	~BaseTree();
+	virtual ~BaseTree() = default; 
 private:
 	void LinkParentChildNodes(TSharedPtr<FGISTreeNode> Node);
 };
@@ -26,7 +25,9 @@ private:
 
 class QuadTree : public BaseTree
 {
-	~QuadTree();
+public:
+	QuadTree() = default;
+	~QuadTree() override = default;
 private:
 	virtual TSharedPtr<FGISBaseDataNode> CreateNode(const FGISIdentifier& NodeID) override; //Creates node if it doesn't exist and adds it to map
 };

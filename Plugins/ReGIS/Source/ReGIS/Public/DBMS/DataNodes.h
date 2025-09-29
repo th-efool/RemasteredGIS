@@ -20,6 +20,7 @@ public:
 	
 	// DATA MANAGEMENT
 	TSharedPtr<IBaseGISDataResource> Resource;
+	bool ResourceFetched = false;
 	template<typename T>
 	void SetResource(T* InData)
 	{
@@ -38,7 +39,7 @@ public:
 	{
 		if (auto AsSharedTGISData = StaticCastSharedPtr<TGISData<T>>(Resource))
 		{
-			return AsSharedTGISData->GetResource();
+			return AsSharedTGISData->GetData();
 		}
 		return nullptr;
 	}
