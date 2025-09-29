@@ -23,6 +23,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 public:
+	void FetchVisibleTiles();
 	// STREAMER CONSTRUCTION
 	StaticStreaming* StaticStreamer;
 	void InitStaticStreaming();
@@ -40,13 +41,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "StreamingConfig")    
 	FGISStreamingConfig InStreamingConfig;  
 	  
-	FGISTileID InCenterTile;  
+	FGISTileID CenterTileID;  
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "StreamingConfig")    
 	int ZoomLevel = 14;    
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "StreamingConfig")    
 	int CenterX = 100;    
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "StreamingConfig")    
 	int CenterY = 100;  
+
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
 	UStaticMesh* TileBaseMeshAsset;    

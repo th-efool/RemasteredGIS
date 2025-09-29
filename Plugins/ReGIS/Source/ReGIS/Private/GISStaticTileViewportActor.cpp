@@ -2,7 +2,7 @@
 
 
 #include "GISStaticTileViewportActor.h"
-
+#include "DBMS/DataManager.h"
 #include "Utils/GISErrorHandler.h"
 
 AGISStaticTileViewportActor::AGISStaticTileViewportActor()
@@ -31,6 +31,30 @@ void AGISStaticTileViewportActor::Tick(float DeltaTime)
 	
   
 }
+
+void AGISStaticTileViewportActor::FetchVisibleTiles()
+{
+	if (!StaticStreamer){return;}
+	int TopLeftCornerX = CenterTileID.X-0.5*(StaticStreamer->AtlasTileCountX);
+	int TopLeftCornerY = CenterTileID.Y-0.5*(StaticStreamer->AtlasTileCountY);
+	int Zoom = CenterTileID.ZoomLevel;
+	if (TopLeftCornerX<0 || TopLeftCornerY<0 || Zoom<0)
+	{
+		return;
+	}
+	UDataManager* DataManager = GetGameInstance()->GetSubsystem<UDataManager>();
+	for (int i=0; i< StaticStreamer->AtlasTileCountX; i++)
+	{
+		for (int j=0; j< StaticStreamer->AtlasTileCountY; j++)
+		{
+			FGISTileID TileID = FGISTileID(Zoom, TopLeftCornerX+i, TopLeftCornerY+j);
+			
+			DataManager->GetStaticTile(TileID, );
+		}
+	}
+
+}
+
 void AGISStaticTileViewportActor::InitStaticStreaming()
 {
 	StaticStreamer = new StaticStreaming(
@@ -52,7 +76,7 @@ void AGISStaticTileViewportActor::InitStaticStreaming()
 void AGISStaticTileViewportActor::RefreshConfig()
 {
 	Super::RefreshConfig();
-	InCenterTile=FGISTileID(ZoomLevel, CenterX, CenterY);
+	CenterTileID=FGISTileID(ZoomLevel, CenterX, CenterY);
 	GIS_HANDLE_IF (TileBaseMaterialAsset)  
 	{  
 		DynamicMaterial = UMaterialInstanceDynamic::Create(TileBaseMaterialAsset, TileMesh);  
@@ -60,8 +84,10 @@ void AGISStaticTileViewportActor::RefreshConfig()
 	GIS_HANDLE_IF (TileBaseMeshAsset)  
 	{  
 		TileMesh->SetStaticMesh(TileBaseMeshAsset);  
-	}  
+	}
+	
 }
+
 
 
 void AGISStaticTileViewportActor::TestCameraMovement()

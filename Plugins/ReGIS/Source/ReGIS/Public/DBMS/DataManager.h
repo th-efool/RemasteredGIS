@@ -26,8 +26,6 @@ private:
 	QuadTree* StaticTileQT;
 	TMap<uint64, TArray<TFunction<void(UTexture2D*)>>> PendingCallbacks;
 
-
-	
 };
 
 

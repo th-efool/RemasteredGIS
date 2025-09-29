@@ -20,7 +20,7 @@ StaticStreaming::StaticStreaming(
 	CameraPixelCountY(CameraTileCountY* TileSizeY),
 	AtlasPixelCountX(AtlasTileCountX* TileSizeX),
 	AtlasPixelCountY(AtlasTileCountY* TileSizeY),
-	TilePixelCount(TileSizeX*TileSizeY)
+	TilePixelCount(TileSizeX*TileSizeY)  
 {
 	AtlasTileData.SetNumZeroed(AtlasPixelCountX * AtlasPixelCountY);
 	StreamingTexture = UTexture2D::CreateTransient(CameraPixelCountX, CameraPixelCountY);
@@ -29,7 +29,6 @@ StaticStreaming::StaticStreaming(
 	StreamingTexture->UpdateResource();
 	VisibleTiles.Empty(); // reset before filling
 	InitFallbackStaticTileFetcher= new GISStaticTileFetcher();
-
 	for (int32 i = 0; i < AtlasTileCountX*AtlasTileCountY; i++)
 	{
 		VisibleTiles.Add(static_cast<UTexture2D*>(InitFallbackStaticTileFetcher->GetFallbackResource()));
@@ -122,6 +121,7 @@ void StaticStreaming::UpdateStreaming()
 	StreamingTexture->GetPlatformData()->Mips[0].BulkData.Unlock();
 	StreamingTexture->UpdateResource();
 }
+
 
 
 void StaticStreaming::ExtractPixelsFromTexture(UTexture2D* Texture, TArray<FColor>& OutPixels)

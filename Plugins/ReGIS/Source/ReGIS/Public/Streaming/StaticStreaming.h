@@ -46,7 +46,7 @@ private:
 	static void ConvertTileArrayToRowContiguous(TArray<FColor>& ContigousTileArray, int InAtlasPixelCountX, int InAtlasPixelCountY, int8 InAtlasTileCountX, int InAtlasTileCountY, int16 InTileSizeX, int16 InTileSizeY, int InTilePixelCount);
 	static void ConvertRowArrayToTileContiguous(TArray<FColor>& ContigousRowArray, int InAtlasPixelCountX, int InAtlasPixelCountY, int8 InAtlasTileCountX, int InAtlasTileCountY, int16 InTileSizeX, int16 InTileSizeY, int InTilePixelCount);
 	;
-private:
+public:
 	// ---- Initialization Internal state ----
 	int8 CameraTileCountX, CameraTileCountY;
 	int8 AtlasTileCountX, AtlasTileCountY;
