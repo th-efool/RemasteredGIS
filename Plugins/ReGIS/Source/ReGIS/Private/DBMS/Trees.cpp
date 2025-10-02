@@ -53,7 +53,7 @@ TSharedPtr<FGISBaseDataNode> BaseTree::CreateNode(const FGISIdentifier& NodeID)
 }
 
 void BaseTree::LinkParentChildNodes(TSharedPtr<FGISTreeNode> Node)
-{
+{/*
 	if (!Node.IsValid())
 	{
 		GIS_WARN_MSG(false, "LinkParentChildNodes called with invalid Node!");
@@ -130,7 +130,7 @@ void BaseTree::LinkParentChildNodes(TSharedPtr<FGISTreeNode> Node)
 		GIS_DEBUG_MSG(false, FString::Printf(
 			TEXT("Linked Node %lld to Child %lld at slots Child:%d Parent:%d"),
 			Node->NodeID.Hash, ChildNode->NodeID.Hash, ChildSlot, ParentSlot));
-	}
+	}*/
 }
 
 

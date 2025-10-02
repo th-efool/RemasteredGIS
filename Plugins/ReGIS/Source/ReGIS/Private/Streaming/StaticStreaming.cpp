@@ -27,13 +27,9 @@ StaticStreaming::StaticStreaming(
 	StreamingTexture->SRGB = true; // (gamma correction) or false (linear color space) 
 	//Reason: "0.5" percieved brightness ain't half max intensity 1 in reality, its close to '0.22'
 	StreamingTexture->UpdateResource();
-	VisibleTiles.Empty(); // reset before filling
+	
 	InitFallbackStaticTileFetcher= new GISStaticTileFetcher();
-	for (int32 i = 0; i < AtlasTileCountX*AtlasTileCountY; i++)
-	{
-		VisibleTiles.Add(static_cast<UTexture2D*>(InitFallbackStaticTileFetcher->GetFallbackResource()));
-	}
-	UpdateAtlas();
+	SetVisibleTilesToFallback();
 	UpdateStreaming();
 	
 }
@@ -44,13 +40,41 @@ void StaticStreaming::SetVisibleTiles(const TArray<UTexture2D*>& InTiles)
 	UpdateAtlas();
 }
 
+void StaticStreaming::SetVisibleTilesToFallback()
+{
+	VisibleTiles.Empty(); // reset before filling
+	for (int32 i = 0; i < AtlasTileCountX*AtlasTileCountY; i++)
+	{
+		VisibleTiles.Add(static_cast<UTexture2D*>(InitFallbackStaticTileFetcher->GetFallbackResource()));
+	}
+	UpdateAtlas();
+
+}
+
+void StaticStreaming::ReInitVisibleTiles()
+{
+	VisibleTiles.Empty();
+	for (int32 i = 0; i < AtlasTileCountX*AtlasTileCountY; i++)
+	{
+		VisibleTiles.Add(static_cast<UTexture2D*>(InitFallbackStaticTileFetcher->GetMarkedDebugResource(FColor::White)));
+	}
+}
+
+void StaticStreaming::SetVisibleTileIndexed(UTexture2D* InTile, int Index)
+{
+	VisibleTiles[Index] = InTile;
+	UE_LOG(LogTemp, Display, TEXT("Succesful FetchbackOf: %d"), Index)
+	UpdateAtlas();
+	UpdateStreaming();
+}
+
+
 void StaticStreaming::SetCameraOffset(float OffsetX, float OffsetY)
 {
 	CameraOffsetX  = OffsetX;
 	CameraOffsetY  = OffsetY;
 	UpdateStreaming();
 }
-
 
 void StaticStreaming::UpdateAtlas()
 {
@@ -218,4 +242,3 @@ void StaticStreaming::ConvertRowArrayToTileContiguous(TArray<FColor>& ContigousR
 	// OTHER THE BIG FUCKIN GOAT REASON is JUST 
 	// ONE ARRAY WAS GARBAGE, ONE WAS MEANIGFUL which was garbage which was meanigful just got reversed
 }
-
