@@ -11,6 +11,10 @@ public:
 	// ---- External Inputs ----
 	// 1) Set which tiles are visible (game provides arrya of UTexture2D*)
 	void SetVisibleTiles(const TArray<UTexture2D*>& InTiles);
+	void SetVisibleTilesToFallback();
+
+	void ReInitVisibleTiles();
+	void SetVisibleTileIndexed(UTexture2D* InTile, int Index);
 	// 2) Set camera offset (normalized -1..1 range, or pixels if you prefer)
 	void SetCameraOffset(float OffsetX, float OffsetY);
 	

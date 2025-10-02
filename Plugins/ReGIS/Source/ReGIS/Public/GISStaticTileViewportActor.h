@@ -23,7 +23,10 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 public:
+	unsigned int FetchIndex=0;
 	void FetchVisibleTiles();
+	void HandleTexture(UTexture2D* Texture,unsigned int fetchIndex, int TileIndex) const;
+	
 	// STREAMER CONSTRUCTION
 	StaticStreaming* StaticStreamer;
 	void InitStaticStreaming();

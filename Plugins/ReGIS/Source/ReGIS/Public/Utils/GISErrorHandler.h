@@ -172,6 +172,9 @@ inline DEFINE_LOG_CATEGORY(LogGIS_Fatal);
 #define GIS_WARN_MSG(x, msg)   FLogger::HandleMsg((x), FLoggerLevel::Warn,  FString(msg), __FILE__, __LINE__)
 #define GIS_ERROR_MSG(x, msg)  FLogger::HandleMsg((x), FLoggerLevel::Error, FString(msg), __FILE__, __LINE__)
 #define GIS_FATAL_MSG(x, msg)  FLogger::HandleMsg((x), FLoggerLevel::Fatal, FString(msg), __FILE__, __LINE__)
+#define GIS_CHECK_PTR(ptr) \
+if (!ptr.IsValid()) { GIS_FATAL_MSG(false, FString::Printf(TEXT("TSharedPtr '%s' is invalid! File: %s Line: %d"), TEXT(#ptr), ANSI_TO_TCHAR(__FILE__), __LINE__)); }
+
 
 #else
 #define GIS_DEBUG(x) (x)
@@ -190,4 +193,7 @@ inline DEFINE_LOG_CATEGORY(LogGIS_Fatal);
 #define GIS_WARN_MSG(x, msg)   (x)
 #define GIS_ERROR_MSG(x, msg)  (x)
 #define GIS_FATAL_MSG(x, msg)  (x)
+
+#define GIS_CHECK_PTR(ptr) (x)
+
 #endif

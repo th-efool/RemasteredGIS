@@ -9,7 +9,8 @@ AGISStaticTileViewportActor::AGISStaticTileViewportActor()
 {
 	TileMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("TileMesh"));  
 	TileMesh->SetupAttachment(RootSceneComponent);  
-	TileMesh->SetWorldScale3D(FVector(5,5,1));  
+	TileMesh->SetWorldScale3D(FVector(5,5,1));
+	FetchIndex=0;
 }
 
 
@@ -19,13 +20,33 @@ void AGISStaticTileViewportActor::BeginPlay()
 	Super::BeginPlay();
 	InitStaticStreaming();
 
+	FTimerHandle TempHandle;
+	GetWorldTimerManager().SetTimer(TempHandle, [this]()
+	{
+		UDataManager* DataManager = GetGameInstance() ? GetGameInstance()->GetSubsystem<UDataManager>() : nullptr;
+		if (!DataManager)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("DataManager not ready yet!"));
+			return;
+		}
+
+		if (!StaticStreamer)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("StaticStreamer not ready!"));
+			return;
+		}
+		FetchVisibleTiles();
+	
+
+	}, 1.0f, false);
+
+
 }
 
 
 void AGISStaticTileViewportActor::Tick(float DeltaTime)  
 {  
 	Super::Tick(DeltaTime);  
-
 	TestCameraMovement();
 	
 	
@@ -34,6 +55,8 @@ void AGISStaticTileViewportActor::Tick(float DeltaTime)
 
 void AGISStaticTileViewportActor::FetchVisibleTiles()
 {
+	FetchIndex++;
+	unsigned int ThisFetchIndex = FetchIndex;
 	if (!StaticStreamer){return;}
 	int TopLeftCornerX = CenterTileID.X-0.5*(StaticStreamer->AtlasTileCountX);
 	int TopLeftCornerY = CenterTileID.Y-0.5*(StaticStreamer->AtlasTileCountY);
@@ -42,18 +65,48 @@ void AGISStaticTileViewportActor::FetchVisibleTiles()
 	{
 		return;
 	}
+	TWeakObjectPtr<AGISStaticTileViewportActor> WeakThis(this);
+
+	
+
 	UDataManager* DataManager = GetGameInstance()->GetSubsystem<UDataManager>();
+
+	
+	StaticStreamer->ReInitVisibleTiles(); // Converting All Tiles TO WHITE TILES 
 	for (int i=0; i< StaticStreamer->AtlasTileCountX; i++)
 	{
 		for (int j=0; j< StaticStreamer->AtlasTileCountY; j++)
 		{
+			int TileIndex = j*(StaticStreamer->AtlasTileCountY)+i;
 			FGISTileID TileID = FGISTileID(Zoom, TopLeftCornerX+i, TopLeftCornerY+j);
-			
-			DataManager->GetStaticTile(TileID, );
+			TFunction<void(UTexture2D*)> Callback =
+			[WeakThis,ThisFetchIndex,TileIndex ](UTexture2D* InTexture)
+			{
+				if (WeakThis.IsValid())
+					{
+						WeakThis->HandleTexture(InTexture,ThisFetchIndex,TileIndex);
+					}
+			};
+			DataManager->GetStaticTile(TileID, Callback );
 		}
 	}
 
 }
+
+void AGISStaticTileViewportActor::HandleTexture(UTexture2D* Texture, unsigned int fetchIndex, int TileIndex) const
+{
+	
+	if (FetchIndex == fetchIndex)
+	{		UE_LOG(LogTemp, Display, TEXT("SUCCESSFUL  FetchIndex: %d , TileIndex: %d"), fetchIndex, TileIndex)
+		StaticStreamer->SetVisibleTileIndexed(Texture, TileIndex);
+	} else
+	{
+		UE_LOG(LogTemp, Display, TEXT("FAILED  FetchIndex: %d , TileIndex: %d"), fetchIndex, TileIndex)
+	
+	}
+}
+
+
 
 void AGISStaticTileViewportActor::InitStaticStreaming()
 {
@@ -93,17 +146,26 @@ void AGISStaticTileViewportActor::RefreshConfig()
 void AGISStaticTileViewportActor::TestCameraMovement()
 {
 	float TimeElapsed = GetWorld()->GetTimeSeconds(); // continuous time
-	
-	float BaseX = FMath::Sin(TimeElapsed * 0.5f * 2 * PI);
-	float BaseY = FMath::Sin(TimeElapsed * 0.7f * 2 * PI + PI/2);
 
-	float NoiseX = FMath::PerlinNoise1D(TimeElapsed * 0.8f) * 2.f - 1.f;
-	float NoiseY = FMath::PerlinNoise1D((TimeElapsed + 1000.f) * 0.8f) * 2.f - 1.f;
+	// Base sinusoidal motion (slower, smoother)
+	float BaseX = FMath::Sin(TimeElapsed * 0.2f * 2 * PI); // slower than 0.5
+	float BaseY = FMath::Sin(TimeElapsed * 0.15f * 2 * PI + PI / 2);
 
-	// Combine with weighted sum and scale to fit [-1,1]
-	float OffsetX = FMath::Clamp(BaseX * 0.9f + NoiseX * 0.1f, -1.f, 1.f);
-	float OffsetY = FMath::Clamp(BaseY * 0.9f + NoiseY * 0.1f, -1.f, 1.f);
-	
-	// Apply to streaming system
-	StaticStreamer->SetCameraOffset(OffsetX, OffsetY);  
+	// Gentle noise for natural variation
+	float NoiseX = FMath::PerlinNoise1D(TimeElapsed * 0.3f) * 0.2f; // subtle, slow
+	float NoiseY = FMath::PerlinNoise1D((TimeElapsed + 1000.f) * 0.3f) * 0.2f;
+
+	// Weighted sum
+	float OffsetX = FMath::Clamp(BaseX * 0.8f + NoiseX, -1.f, 1.f);
+	float OffsetY = FMath::Clamp(BaseY * 0.8f + NoiseY, -1.f, 1.f);
+
+	// Optional: smooth over time using Lerp
+	static float SmoothedX = 0.f;
+	static float SmoothedY = 0.f;
+	float SmoothSpeed = 2.f; // higher = faster response
+	SmoothedX = FMath::FInterpTo(SmoothedX, OffsetX, GetWorld()->GetDeltaSeconds(), SmoothSpeed);
+	SmoothedY = FMath::FInterpTo(SmoothedY, OffsetY, GetWorld()->GetDeltaSeconds(), SmoothSpeed);
+
+	StaticStreamer->SetCameraOffset(SmoothedX, SmoothedY);
 }
+

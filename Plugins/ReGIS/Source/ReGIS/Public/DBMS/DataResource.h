@@ -21,7 +21,6 @@ public:
 	void SetData(T* InData)
 	{
 		if (Data != InData) {
-			delete Data;
 			Data = InData;
 		}
 	}

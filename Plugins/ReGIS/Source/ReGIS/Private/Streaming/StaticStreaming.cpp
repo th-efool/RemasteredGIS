@@ -219,5 +219,3 @@ void StaticStreaming::ConvertRowArrayToTileContiguous(TArray<FColor>& ContigousR
 	// ONE ARRAY WAS GARBAGE, ONE WAS MEANIGFUL which was garbage which was meanigful just got reversed
 }
 
-
-

@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "DataResource.h"
 #include "Utils/GISDataType.h"
+#include "Utils/GISErrorHandler.h"
 
 
 struct FGISBaseDataNode 
@@ -30,7 +31,9 @@ public:
 		}
 		else {
 			Resource = MakeShared<TGISData<T>>(InData);
+			GIS_CHECK_PTR(Resource);
 		}
+		InData->AddToRoot();
 
 	}
 
@@ -61,6 +64,7 @@ struct FGISQTNode : public FGISTreeNode
 
 	inline virtual void Initialize(FGISIdentifier NodeIdentifier, TSharedPtr<FGISBaseDataNode> InSelf) override
 	{
+		GIS_CHECK_PTR(InSelf);
 		FGISBaseDataNode::Initialize(NodeIdentifier, InSelf);
 	}
 	
