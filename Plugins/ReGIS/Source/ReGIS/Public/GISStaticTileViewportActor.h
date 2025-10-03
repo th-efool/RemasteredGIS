@@ -75,7 +75,11 @@ public:
 	UStaticMeshComponent* TileMesh;
 	AGISStaticTileViewportActor();
 	FGISTileID CenterTileID;  
-
+	int GetCenterTileIndex() const{int mid = (InStreamingConfig.GridLengthX - 1) / 2;          // 0-based row/col
+		int centerIndex = mid * InStreamingConfig.GridLengthX + mid + 1; // 1-based sequential index
+		centerIndex-=1; //Counting Starts From Zero
+		return centerIndex;
+	}
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "StreamingConfig")    
 	FGISStreamingConfig InStreamingConfig;  

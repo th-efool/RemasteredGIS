@@ -49,9 +49,9 @@ void AGISStaticTileViewportActor::BeginPlay()
 			UE_LOG(LogTemp, Warning, TEXT("StaticStreamer not ready!"));
 			return;
 		}
-		/*
+		
 		FetchVisibleTiles();
-	*/
+	
 	}, 1.0f, false);
 	
 	APlayerController* PC = GetWorld()->GetFirstPlayerController();
@@ -276,8 +276,14 @@ FGISPoint AGISStaticTileViewportActor::ConvertLocalPointToGISPoint(FVector2D Loc
 	// 8) Single on-screen print
 	GEngine->AddOnScreenDebugMessage(-1, 30.f, FColor::Green, TraceMsg);
 
+	std::pair<double, double> LatLong = GISConversionEngine::TileToLatLon(CenterTileID, FVector2D(centerTileDistanceX,centerTileDistanceY));
+	FString Msg = FString::Printf(TEXT("Lat: %.6f, Lon: %.6f"), LatLong.first, LatLong.second);
+
+	// Print to screen for 5 seconds in green
+	GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Green, Msg);
+
 	// 9) Return the computed GIS point
-	return FGISPoint(centerTileDistanceX, centerTileDistanceY, 0, 0);
+	return FGISPoint(LatLong.first, LatLong.second, 0, CenterTileID.ZoomLevel);
 
 }
 
