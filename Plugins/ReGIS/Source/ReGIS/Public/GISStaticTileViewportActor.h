@@ -6,12 +6,42 @@
 #include "GISTileViewportActor.h"
 #include  "Utils/GISDataType.h"
 #include "Streaming/StaticStreaming.h"
+#include "Utils/GISConversionEngine.h"
+#include <utility>
 #include "GISStaticTileViewportActor.generated.h"
 
 
 /**
  * 
  */
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCanvasClicked, FVector2D, LocalCoord);
+
+
+USTRUCT(BlueprintType)   // <-- makes struct visible/usable in BP
+struct FInputTileData
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Tile")
+	int ZoomLevel = 14;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Tile")
+	bool UseLatitudeLongitude = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Tile")
+	int CenterX = 100;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Tile")
+	int CenterY = 100;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Tile")
+	double Latitude = 28.61;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Tile")
+	double Longitude = 77.23;
+};
+
+
 UCLASS()
 class REGIS_API AGISStaticTileViewportActor : public AGISTileViewportActor
 {
@@ -23,6 +53,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 public:
+
 	unsigned int FetchIndex=0;
 	void FetchVisibleTiles();
 	void HandleTexture(UTexture2D* Texture,unsigned int fetchIndex, int TileIndex) const;
@@ -36,22 +67,19 @@ public:
 	virtual void RefreshConfig() override;
 
 	UPROPERTY()
+	
 	UMaterialInstanceDynamic* DynamicMaterial;    
 	UPROPERTY()
 	UStaticMeshComponent* TileMesh;
 	AGISStaticTileViewportActor();
+	FGISTileID CenterTileID;  
+
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "StreamingConfig")    
 	FGISStreamingConfig InStreamingConfig;  
-	  
-	FGISTileID CenterTileID;  
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "StreamingConfig")    
-	int ZoomLevel = 14;    
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "StreamingConfig")    
-	int CenterX = 100;    
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "StreamingConfig")    
-	int CenterY = 100;  
-
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "StreamingConfig")
+	FInputTileData InputConfigData;
+	
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
 	UStaticMesh* TileBaseMeshAsset;    
@@ -60,4 +88,13 @@ public:
 
 private:
 	void TestCameraMovement();
-}; 
+public:
+	UPROPERTY(BlueprintAssignable, Category="Canvas")
+	FOnCanvasClicked OnCanvasClicked;
+	UFUNCTION()
+	void HandleOnClicked(UPrimitiveComponent* TouchedComponent, FKey ButtonPressed);
+	
+private:
+	FGISPoint ConvertLocalPointToGISPoint(FVector2D LocalCoord) const;
+	
+};

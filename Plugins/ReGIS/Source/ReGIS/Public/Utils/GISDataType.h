@@ -24,13 +24,17 @@ struct ICustomParams{
 
 struct FGISPoint
 {
-	float Latitude;
-	float Longitude;
+	double Latitude;
+	double Longitude;
 	float Altitude;
+	int Zoom;
 	FGISPoint()
-		: Latitude(0.0f), Longitude(0.0f), Altitude(0.0f)
-	{
-	}
+		: Latitude(0.0f), Longitude(0.0f), Altitude(0.0f), Zoom(0)
+	{}
+	FGISPoint(double LatitudeDeg, double LongitudeDeg, float Altitude, int Zoom)
+		: Latitude(LatitudeDeg), Longitude(LongitudeDeg),Altitude(Altitude),Zoom(Zoom)
+	{}
+				
 };
 
 

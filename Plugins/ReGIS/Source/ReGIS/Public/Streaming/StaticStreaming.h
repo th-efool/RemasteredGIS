@@ -17,6 +17,7 @@ public:
 	void SetVisibleTileIndexed(UTexture2D* InTile, int Index);
 	// 2) Set camera offset (normalized -1..1 range, or pixels if you prefer)
 	void SetCameraOffset(float OffsetX, float OffsetY);
+	FVector2D GetCameraOffset() const {return FVector2D(CameraOffsetX,CameraOffsetY);};
 	
 	// ---- Object Output Accessors ----
 	UTexture2D* GetStreamingTexture() const { return StreamingTexture; }

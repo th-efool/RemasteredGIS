@@ -43,10 +43,21 @@ void StaticStreaming::SetVisibleTiles(const TArray<UTexture2D*>& InTiles)
 void StaticStreaming::SetVisibleTilesToFallback()
 {
 	VisibleTiles.Empty(); // reset before filling
-	for (int32 i = 0; i < AtlasTileCountX*AtlasTileCountY; i++)
+	/*for (int32 i = 0; i < AtlasTileCountX*AtlasTileCountY; i++)
 	{
 		VisibleTiles.Add(static_cast<UTexture2D*>(InitFallbackStaticTileFetcher->GetFallbackResource()));
+	}*/
+
+	VisibleTiles.Add(static_cast<UTexture2D*>(InitFallbackStaticTileFetcher->GetMarkedDebugResource(FColor::Red)));
+	VisibleTiles.Add(static_cast<UTexture2D*>(InitFallbackStaticTileFetcher->GetMarkedDebugResource(FColor::Black)));
+
+	for (int32 i = 2; i < AtlasTileCountX*AtlasTileCountY; i++)
+	{
+		VisibleTiles.Add(static_cast<UTexture2D*>(InitFallbackStaticTileFetcher->GetMarkedDebugResource(FColor::White)));
 	}
+
+
+	
 	UpdateAtlas();
 
 }
