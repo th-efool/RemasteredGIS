@@ -17,7 +17,7 @@ public:
 	void SetVisibleTileIndexed(UTexture2D* InTile, int Index);
 	// 2) Set camera offset (normalized -1..1 range, or pixels if you prefer)
 	void SetCameraOffset(float OffsetX, float OffsetY);
-	FVector2D GetCameraOffset() const {return FVector2D(CameraOffsetX,CameraOffsetY);};
+	FVector2D GetCameraOffset() const {return OutputCameraOffset;};
 	
 	// ---- Object Output Accessors ----
 	UTexture2D* GetStreamingTexture() const { return StreamingTexture; }
@@ -39,8 +39,7 @@ private:
 	UTexture2D* StreamingTexture;
 
 
-	float CameraOffsetX = 0.1f;
-	float CameraOffsetY = 0.1f;
+
 
 	// ---- Private helpers ----
 	void ExtractPixelsFromTexture(UTexture2D* Texture, TArray<FColor>& OutPixels);
@@ -66,6 +65,9 @@ private:
 	// 1. Easier Debug
 	// 2. Prevent Unneccesary Crash
 	GISStaticTileFetcher* InitFallbackStaticTileFetcher;
+	float InCameraStreamOffsetX = 0.0f;
+	float InCameraStreamOffsetY = 0.0f;
+	FVector2D OutputCameraOffset= FVector2D(0.0f,0.0f);
 
 	
 };

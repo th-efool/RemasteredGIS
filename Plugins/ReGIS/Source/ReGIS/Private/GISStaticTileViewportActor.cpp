@@ -77,9 +77,8 @@ void AGISStaticTileViewportActor::BeginPlay()
 void AGISStaticTileViewportActor::Tick(float DeltaTime)  
 {  
 	Super::Tick(DeltaTime);  
-	/*
+	
 	TestCameraMovement();
-	*/
 	
 	
   
@@ -240,32 +239,59 @@ void AGISStaticTileViewportActor::HandleOnClicked(UPrimitiveComponent* TouchedCo
 
 FGISPoint AGISStaticTileViewportActor::ConvertLocalPointToGISPoint(FVector2D LocalCoord) const
 {
-	// Scaling down so we can play in local units more properly
-	double X = LocalCoord.X/100.f;
-	double Y = LocalCoord.Y/100.f;
-	// The Plane is 100x100 units w/ UpperLeftCorner(-50,-50), UpperRightCorner(50,-50), DownRightCorner(50,50), Center(0,0)
-	// So Inverting Y value for consistency in calculations
-	Y = -Y;
-	
-	double UnitLengthFromCenterPointX=X*InStreamingConfig.CameraGridLengthX;
-	double UnitLengthFromCenterPointY=Y*InStreamingConfig.CameraGridLengthY;
+	// 1) inputs
+	double inputX = LocalCoord.X;
+	double inputY = LocalCoord.Y;
 
-	// Unit Length from Top Left Corner of the CenterTile
-	double PseudoCenterTileDistanceX = 0.5+ UnitLengthFromCenterPointX;
-	double PseudoCenterTileDistanceY =-0.5+ UnitLengthFromCenterPointY;
+	// 3) invert Y for your coordinate convention
+	inputY = -inputY;
+	
+	// 2) scale (your /100 step)
+	double scaledX = inputX / 100.0;
+	double scaledY = inputY / 100.0;
 
-	GIS_ERROR(StaticStreamer);
-	FVector2D CameraOffset = StaticStreamer->GetCameraOffset();
-	// Camera offset is -1,-1 for BottomLeft (-1,1) for TopLeft, (1,1) for TopRight, (1,-1) for BottomRight
-	FVector2D LocalizedCameraOffset = FVector2D((CameraOffset.X/2)*InStreamingConfig.CameraGridLengthX,
-												(CameraOffset.Y/2)*InStreamingConfig.CameraGridLengthY);
+
+
+	// 4) grid lengths (explicit local copies so message shows exact config)
+	double gridLenX = InStreamingConfig.CameraGridLengthX;
+	double gridLenY = InStreamingConfig.CameraGridLengthY;
+
+	// 5) unit lengths from center (after scaling by grid)
+	double unitLenFromCenterX = scaledX * gridLenX;   // = (LocalCoord.X/100) * CameraGridLengthX
+	double unitLenFromCenterY = scaledY * gridLenY; // = (-LocalCoord.Y/100) * CameraGridLengthY
+
+	// 6) pseudo center tile distance (relative to center tile top-left)
+	double pseudoCenterTileDistX = unitLenFromCenterX  /*+ 0.5*/;
+	double pseudoCenterTileDistY = unitLenFromCenterY /*+ -0.5*/;
+
+	// 7) camera offsets (raw + localized)
 	
-	double CenterTileDistanceX=  LocalizedCameraOffset.X + PseudoCenterTileDistanceX;
-	double CenterTileDistanceY=  LocalizedCameraOffset.Y + PseudoCenterTileDistanceY;
+	FVector2D cameraOffsetRaw = StaticStreamer->GetCameraOffset();
+	double localizedCamOffsetX = (cameraOffsetRaw.X / 2.0) * gridLenX;
+	double localizedCamOffsetY = (cameraOffsetRaw.Y / 2.0) * gridLenY;
+
+	// 8) final center tile distances (what you used in AddOnScreenDebugMessage)
+	double centerTileDistanceX = -localizedCamOffsetX + pseudoCenterTileDistX;
+	double centerTileDistanceY =  localizedCamOffsetY + pseudoCenterTileDistY;
 	
 	
-	GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Green,
-				FString::Printf(TEXT("Canvas Local Hit: X=%.2f, Y=%.2f"), CenterTileDistanceX, CenterTileDistanceY));
-	return FGISPoint(X,Y,0,0);
+	// Build one big multi-line message (single AddOnScreenDebugMessage call)
+	FString TraceMsg;
+	TraceMsg += FString::Printf(TEXT("CANVAS LOCAL HIT TRACE\n"));
+	TraceMsg += FString::Printf(TEXT("1) INPUT LocalCoord:         X=%.4f, Y=%.4f\n"), inputX, -inputY);
+	TraceMsg += FString::Printf(TEXT("2) SCALED (/100):            X=%.4f, Y=%.4f\n"), scaledX, -scaledY);
+	TraceMsg += FString::Printf(TEXT("4) GRID LENGTHS:             CameraGridLenX=%.4f, CameraGridLenY=%.4f\n"), gridLenX, gridLenY);
+	TraceMsg += FString::Printf(TEXT("5) UNIT LEN FROM CENTER:     X=%.4f, Y=%.4f\n"), unitLenFromCenterX, unitLenFromCenterY);
+	TraceMsg += FString::Printf(TEXT("6) PSEUDO CENTER TILE DIST:  X=%.4f (0.5 + unitX), Y=%.4f (-0.5 + unitY)\n"),
+								pseudoCenterTileDistX, pseudoCenterTileDistY);
+	TraceMsg += FString::Printf(TEXT("7) CAMERA OFFSET RAW:        X=%.4f, Y=%.4f\n"), cameraOffsetRaw.X, cameraOffsetRaw.Y);
+	TraceMsg += FString::Printf(TEXT("   LOCALIZED CAM OFFSET:     X=(rawX/2)*gridX=%.4f, Y=(rawY/2)*gridY=%.4f\n"),
+								localizedCamOffsetX, localizedCamOffsetY);
+	TraceMsg += FString::Printf(TEXT("8) FINAL CenterTileDistance: X=%.4f, Y=%.4f\n"), centerTileDistanceX, centerTileDistanceY);
+
+	// single on-screen print (one call)
+	GEngine->AddOnScreenDebugMessage(-1, 30.f, FColor::Green, TraceMsg);
+	
+	return FGISPoint(centerTileDistanceX,centerTileDistanceY,0,0);
 }
 

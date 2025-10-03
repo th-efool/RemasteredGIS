@@ -174,6 +174,12 @@ inline DEFINE_LOG_CATEGORY(LogGIS_Fatal);
 #define GIS_FATAL_MSG(x, msg)  FLogger::HandleMsg((x), FLoggerLevel::Fatal, FString(msg), __FILE__, __LINE__)
 #define GIS_CHECK_PTR(ptr) \
 if (!ptr.IsValid()) { GIS_FATAL_MSG(false, FString::Printf(TEXT("TSharedPtr '%s' is invalid! File: %s Line: %d"), TEXT(#ptr), ANSI_TO_TCHAR(__FILE__), __LINE__)); }
+#define PRINT_SCREEN(Text) \
+if (GEngine) \
+{ \
+GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::White, Text); \
+UE_LOG(LogTemp, Display, TEXT("%s"), *FString(Text)); \
+}
 
 
 #else

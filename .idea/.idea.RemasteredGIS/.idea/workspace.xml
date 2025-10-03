@@ -17,11 +17,9 @@
       <change beforePath="$PROJECT_DIR$/Content/__ExternalActors__/TestMap/1/2W/LNT4MY40QFOT50GIWTI8MJ.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/__ExternalActors__/TestMap/1/2W/LNT4MY40QFOT50GIWTI8MJ.uasset" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/GISStaticTileViewportActor.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/GISStaticTileViewportActor.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/Streaming/StaticStreaming.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/Streaming/StaticStreaming.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/Utils/GISConversionEngine.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/Utils/GISConversionEngine.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/GISStaticTileViewportActor.h" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/GISStaticTileViewportActor.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/Streaming/StaticStreaming.h" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/Streaming/StaticStreaming.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/Utils/GISConversionEngine.h" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/Utils/GISConversionEngine.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/Utils/GISDataType.h" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/Utils/GISDataType.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/Utils/GISErrorHandler.h" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/Utils/GISErrorHandler.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -200,7 +198,8 @@
       <workItem from="1759146884279" duration="18670000" />
       <workItem from="1759421221248" duration="12799000" />
       <workItem from="1759434693235" duration="9093000" />
-      <workItem from="1759471454666" duration="14374000" />
+      <workItem from="1759471454666" duration="14421000" />
+      <workItem from="1759514799972" duration="6513000" />
     </task>
     <servers />
   </component>

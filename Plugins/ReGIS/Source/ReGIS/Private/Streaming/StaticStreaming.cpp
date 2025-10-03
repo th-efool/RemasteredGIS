@@ -43,21 +43,10 @@ void StaticStreaming::SetVisibleTiles(const TArray<UTexture2D*>& InTiles)
 void StaticStreaming::SetVisibleTilesToFallback()
 {
 	VisibleTiles.Empty(); // reset before filling
-	/*for (int32 i = 0; i < AtlasTileCountX*AtlasTileCountY; i++)
+	for (int32 i = 0; i < AtlasTileCountX*AtlasTileCountY; i++)
 	{
 		VisibleTiles.Add(static_cast<UTexture2D*>(InitFallbackStaticTileFetcher->GetFallbackResource()));
-	}*/
-
-	VisibleTiles.Add(static_cast<UTexture2D*>(InitFallbackStaticTileFetcher->GetMarkedDebugResource(FColor::Red)));
-	VisibleTiles.Add(static_cast<UTexture2D*>(InitFallbackStaticTileFetcher->GetMarkedDebugResource(FColor::Black)));
-
-	for (int32 i = 2; i < AtlasTileCountX*AtlasTileCountY; i++)
-	{
-		VisibleTiles.Add(static_cast<UTexture2D*>(InitFallbackStaticTileFetcher->GetMarkedDebugResource(FColor::White)));
 	}
-
-
-	
 	UpdateAtlas();
 
 }
@@ -82,8 +71,12 @@ void StaticStreaming::SetVisibleTileIndexed(UTexture2D* InTile, int Index)
 
 void StaticStreaming::SetCameraOffset(float OffsetX, float OffsetY)
 {
-	CameraOffsetX  = OffsetX;
-	CameraOffsetY  = OffsetY;
+	InCameraStreamOffsetX  = OffsetX>1 ? 1 : OffsetX;
+	InCameraStreamOffsetY = OffsetY>1 ? 1 : OffsetY;
+	InCameraStreamOffsetX  = OffsetX<-1 ? 1 : OffsetX;
+	InCameraStreamOffsetY = OffsetY<-1 ? 1 : OffsetY;
+	PRINT_SCREEN(FString::Printf(TEXT("CameraOffsetX: %f, CameraOffsetY: %f"), GetCameraOffset().X, GetCameraOffset().Y));
+	
 	UpdateStreaming();
 }
 
@@ -111,13 +104,15 @@ void StaticStreaming::UpdateStreaming()
     if (!StreamingTexture || !StreamingTexture->GetPlatformData() || StreamingTexture->GetPlatformData()->Mips.Num() == 0)
         return; 
         
-	GIS_FATAL_MSG(CameraOffsetX<= 1 || CameraOffsetX>= -1 || CameraOffsetY<=1 || CameraOffsetY>=-1 ,
+	GIS_FATAL_MSG(InCameraStreamOffsetX<= 1 || InCameraStreamOffsetX>= -1 || InCameraStreamOffsetY<=1 || InCameraStreamOffsetY>=-1 ,
 	FString::Printf(TEXT("Pixel Offset exceededed max offset! X=%f Y=%f"),
-	 CameraOffsetX, CameraOffsetY));
+	 InCameraStreamOffsetX, InCameraStreamOffsetY));
 	
-	int PixelYOffset = (AtlasPixelCountY-CameraPixelCountY)*0.5*CameraOffsetY;
-	int PixelXOffset = (AtlasPixelCountX-CameraPixelCountX)*0.5*CameraOffsetX;
+	int MaxPixelOffsetY = (AtlasPixelCountY-CameraPixelCountY)*0.5;
+	int MaxPixelOffsetX = (AtlasPixelCountX-CameraPixelCountX)*0.5;
 
+	int DeviationX = InCameraStreamOffsetX*MaxPixelOffsetX;
+	int DeviationY = InCameraStreamOffsetY*MaxPixelOffsetY;
 	
 	const int CenterPixelY = AtlasPixelCountY/2;
 	const int CenterPixelX = AtlasPixelCountX/2;
@@ -126,8 +121,8 @@ void StaticStreaming::UpdateStreaming()
 	const int CenteredCameraFrameTopLeftPixelY = CenterPixelY - CameraPixelCountY*0.5;
 
 	
-	int BeginXPixel = CenteredCameraFrameTopLeftPixelX + PixelXOffset;
-	int BeginYPixel = CenteredCameraFrameTopLeftPixelY + PixelYOffset;
+	int BeginXPixel = CenteredCameraFrameTopLeftPixelX + DeviationX;
+	int BeginYPixel = CenteredCameraFrameTopLeftPixelY + DeviationY;
 
 	GIS_HANDLE_IF(BeginXPixel >= 0 || BeginXPixel <= AtlasPixelCountX)
 	GIS_HANDLE_IF(BeginYPixel >= 0 || BeginYPixel <= AtlasPixelCountY)
@@ -155,6 +150,12 @@ void StaticStreaming::UpdateStreaming()
 	memcpy(mipBuffer,TempStreamingData.GetData(),CameraPixelCountX*CameraPixelCountY*sizeof(FColor));
 	StreamingTexture->GetPlatformData()->Mips[0].BulkData.Unlock();
 	StreamingTexture->UpdateResource();
+
+	double ReNormalizedX = MaxPixelOffsetX > 0 ? static_cast<double>(DeviationX) / MaxPixelOffsetX : 0.0;
+	double ReNormalizedY = MaxPixelOffsetY > 0 ? static_cast<double>(DeviationY) / MaxPixelOffsetY : 0.0;
+
+	OutputCameraOffset = FVector2D(ReNormalizedX, ReNormalizedY);
+
 }
 
 
