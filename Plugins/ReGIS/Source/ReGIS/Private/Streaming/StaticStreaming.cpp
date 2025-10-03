@@ -43,9 +43,20 @@ void StaticStreaming::SetVisibleTiles(const TArray<UTexture2D*>& InTiles)
 void StaticStreaming::SetVisibleTilesToFallback()
 {
 	VisibleTiles.Empty(); // reset before filling
+	int mid = (AtlasTileCountX - 1) / 2;          // 0-based row/col
+	int centerIndex = mid * AtlasTileCountX + mid + 1; // 1-based sequential index
+	centerIndex-=1; //Counting Starts From Zero
+	
 	for (int32 i = 0; i < AtlasTileCountX*AtlasTileCountY; i++)
 	{
-		VisibleTiles.Add(static_cast<UTexture2D*>(InitFallbackStaticTileFetcher->GetFallbackResource()));
+		if (i==centerIndex)
+		{
+			VisibleTiles.Add(static_cast<UTexture2D*>(InitFallbackStaticTileFetcher->GetMarkedDebugResource(FColor::Black)));
+		} 
+		else
+		{
+			VisibleTiles.Add(static_cast<UTexture2D*>(InitFallbackStaticTileFetcher->GetMarkedDebugResource(FColor::Purple)));
+		}
 	}
 	UpdateAtlas();
 
@@ -75,8 +86,6 @@ void StaticStreaming::SetCameraOffset(float OffsetX, float OffsetY)
 	InCameraStreamOffsetY = OffsetY>1 ? 1 : OffsetY;
 	InCameraStreamOffsetX  = OffsetX<-1 ? 1 : OffsetX;
 	InCameraStreamOffsetY = OffsetY<-1 ? 1 : OffsetY;
-	PRINT_SCREEN(FString::Printf(TEXT("CameraOffsetX: %f, CameraOffsetY: %f"), GetCameraOffset().X, GetCameraOffset().Y));
-	
 	UpdateStreaming();
 }
 

@@ -66,8 +66,10 @@ public:
 public:
 	virtual void RefreshConfig() override;
 
-	UPROPERTY()
 	
+
+	
+	UPROPERTY()
 	UMaterialInstanceDynamic* DynamicMaterial;    
 	UPROPERTY()
 	UStaticMeshComponent* TileMesh;
