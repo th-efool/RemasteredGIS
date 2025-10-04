@@ -27,6 +27,12 @@ AGISStaticTileViewportActor::AGISStaticTileViewportActor()
 
 }
 
+int AGISStaticTileViewportActor::GetCenterTileIndex() const
+{int mid = (InStreamingConfig.GridLengthX - 1) / 2;          // 0-based row/col
+	int centerIndex = mid * InStreamingConfig.GridLengthX + mid + 1; // 1-based sequential index
+	centerIndex-=1; //Counting Starts From Zero
+	return centerIndex;
+}
 
 
 void AGISStaticTileViewportActor::BeginPlay()
@@ -99,7 +105,7 @@ void AGISStaticTileViewportActor::FetchVisibleTiles()
 
 	UDataManager* DataManager = GetGameInstance()->GetSubsystem<UDataManager>();
 
-	
+	VisibleTilesID.Empty();
 	StaticStreamer->ReInitVisibleTiles(); // Converting All Tiles TO WHITE TILES 
 	for (int i=0; i< InStreamingConfig.GridLengthX; i++)
 	{
@@ -107,6 +113,7 @@ void AGISStaticTileViewportActor::FetchVisibleTiles()
 		{
 			int TileIndex = j*(InStreamingConfig.GridLengthY)+i;
 			FGISTileID TileID = FGISTileID(Zoom, TopLeftCornerX+i, TopLeftCornerY+j);
+			VisibleTilesID.Add(TileID);
 			TFunction<void(UTexture2D*)> Callback =
 			[WeakThis,ThisFetchIndex,TileIndex ](UTexture2D* InTexture)
 			{
@@ -276,7 +283,8 @@ FGISPoint AGISStaticTileViewportActor::ConvertLocalPointToGISPoint(FVector2D Loc
 	// 8) Single on-screen print
 	GEngine->AddOnScreenDebugMessage(-1, 30.f, FColor::Green, TraceMsg);
 
-	std::pair<double, double> LatLong = GISConversionEngine::TileToLatLon(CenterTileID, FVector2D(centerTileDistanceX,centerTileDistanceY));
+	std::pair<double, double> LatLong = GISConversionEngine::TileToLatLon(VisibleTilesID[GetCenterTileIndex()], FVector2D(centerTileDistanceX,-centerTileDistanceY));
+
 	FString Msg = FString::Printf(TEXT("Lat: %.6f, Lon: %.6f"), LatLong.first, LatLong.second);
 
 	// Print to screen for 5 seconds in green

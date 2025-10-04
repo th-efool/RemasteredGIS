@@ -48,13 +48,13 @@ class REGIS_API AGISStaticTileViewportActor : public AGISTileViewportActor
 	GENERATED_BODY()
 	
 public:
-	
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 
 public:
 
 	unsigned int FetchIndex=0;
+	TArray<FGISTileID> VisibleTilesID;
 	void FetchVisibleTiles();
 	void HandleTexture(UTexture2D* Texture,unsigned int fetchIndex, int TileIndex) const;
 	
@@ -75,12 +75,8 @@ public:
 	UStaticMeshComponent* TileMesh;
 	AGISStaticTileViewportActor();
 	FGISTileID CenterTileID;  
-	int GetCenterTileIndex() const{int mid = (InStreamingConfig.GridLengthX - 1) / 2;          // 0-based row/col
-		int centerIndex = mid * InStreamingConfig.GridLengthX + mid + 1; // 1-based sequential index
-		centerIndex-=1; //Counting Starts From Zero
-		return centerIndex;
-	}
-	
+	int GetCenterTileIndex() const;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "StreamingConfig")    
 	FGISStreamingConfig InStreamingConfig;  
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "StreamingConfig")

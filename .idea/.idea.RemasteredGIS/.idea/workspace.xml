@@ -14,9 +14,6 @@
   <component name="ChangeListManager">
     <list default="true" id="967cc7e2-8a47-44aa-ae05-a3fa208b46bf" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.RemasteredGIS/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.RemasteredGIS/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/__ExternalActors__/TestMap/0/LL/CJVYLM68N4L3UOLT41IG8Z.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/__ExternalActors__/TestMap/0/LL/CJVYLM68N4L3UOLT41IG8Z.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/__ExternalActors__/TestMap/1/2W/LNT4MY40QFOT50GIWTI8MJ.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/__ExternalActors__/TestMap/1/2W/LNT4MY40QFOT50GIWTI8MJ.uasset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Content/__ExternalActors__/TestMap/1/LW/VACC5913AVAXN69B693B57.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/__ExternalActors__/TestMap/1/LW/VACC5913AVAXN69B693B57.uasset" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/GISStaticTileViewportActor.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/GISStaticTileViewportActor.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/GISStaticTileViewportActor.h" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/GISStaticTileViewportActor.h" afterDir="false" />
     </list>
@@ -198,7 +195,8 @@
       <workItem from="1759421221248" duration="12799000" />
       <workItem from="1759434693235" duration="9093000" />
       <workItem from="1759471454666" duration="14421000" />
-      <workItem from="1759514799972" duration="16859000" />
+      <workItem from="1759514799972" duration="16984000" />
+      <workItem from="1759558361402" duration="2390000" />
     </task>
     <servers />
   </component>
