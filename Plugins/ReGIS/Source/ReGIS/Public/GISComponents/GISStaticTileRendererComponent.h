@@ -26,12 +26,10 @@ public:
 		
 	// CONFIGURATION INITIALIZATION
 private:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "StreamingConfig")    
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "StreamingConfig")    
 	FGISStreamingConfig InStreamingConfig;  
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "StreamingConfig")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "StreamingConfig")
 	FInputTileData InputConfigData;
-
-	
 
 public:
 	TArray<FGISTileID> VisibleTilesID;

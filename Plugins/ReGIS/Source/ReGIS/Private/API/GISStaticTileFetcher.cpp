@@ -39,18 +39,18 @@ void GISStaticTileFetcher::HandleAPIResponse(FHttpResponsePtr Response, TFunctio
 
 void* GISStaticTileFetcher::GetFallbackResource()
 {
-	/*
 	static UTexture2D* FallbackTexture;
-	if (FallbackTexture){return static_cast<void*>(FallbackTexture);}
-	*/
-	UTexture2D* FallbackTexture;
+	if (FallbackTexture != nullptr)
+	{
+		return static_cast<void*>(FallbackTexture);
+	}
 	FallbackTexture = UTexture2D::CreateTransient(256, 256, PF_B8G8R8A8);
 	FallbackTexture->MipGenSettings = TMGS_NoMipmaps;
 	FallbackTexture->SRGB = true;
 	FColor FillColor = FColor::Black;
-	FString ColorName = TEXT("Black");
-
+	/*
 	FillColor = FColor::MakeRandomColor();
+	*/
 	UE_LOG(LogTemp, Display, TEXT("Chosen color: %s"), *FillColor.ToString());
 	
 	
@@ -63,7 +63,6 @@ void* GISStaticTileFetcher::GetFallbackResource()
 
 	FallbackTexture->UpdateResource();
 	FallbackTexture->AddToRoot();
-
 	return static_cast<void*>(FallbackTexture);
 }
 
@@ -84,6 +83,26 @@ UTexture2D* GISStaticTileFetcher::GetMarkedDebugResource(FColor FillColor)
 	DebugTexture->UpdateResource();
 	DebugTexture->AddToRoot();
 	return DebugTexture;
+}
+UTexture2D* GISStaticTileFetcher::GetLoadingTile()
+{
+	static UTexture2D* WhiteTile;
+	if (WhiteTile){return WhiteTile;}
+	WhiteTile= UTexture2D::CreateTransient(256, 256, PF_B8G8R8A8);
+	WhiteTile->MipGenSettings = TMGS_NoMipmaps;
+	WhiteTile->SRGB = true;
+	
+	
+	TArray<FColor> Pixels;
+	Pixels.Init(FColor::White, 256 * 256);
+
+	void* TextureDataBuffer = WhiteTile->GetPlatformData()->Mips[0].BulkData.Lock(LOCK_READ_WRITE);
+	FMemory::Memcpy(TextureDataBuffer, Pixels.GetData(), Pixels.Num() * sizeof(FColor));
+	WhiteTile->GetPlatformData()->Mips[0].BulkData.Unlock();
+
+	WhiteTile->UpdateResource();
+	WhiteTile->AddToRoot();
+	return WhiteTile;
 }
 
 void GISStaticTileFetcher::MakeApiCall(IGISCustomDatatypes& Params, TFunction<void(void*)> callback)

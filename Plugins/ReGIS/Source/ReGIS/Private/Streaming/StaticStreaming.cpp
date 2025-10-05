@@ -67,7 +67,7 @@ void StaticStreaming::ReInitVisibleTiles()
 	VisibleTiles.Empty();
 	for (int32 i = 0; i < AtlasTileCountX*AtlasTileCountY; i++)
 	{
-		VisibleTiles.Add(static_cast<UTexture2D*>(InitFallbackStaticTileFetcher->GetMarkedDebugResource(FColor::White)));
+		VisibleTiles.Add(static_cast<UTexture2D*>(InitFallbackStaticTileFetcher->GetLoadingTile()));
 	}
 }
 

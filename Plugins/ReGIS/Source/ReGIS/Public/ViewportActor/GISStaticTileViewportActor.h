@@ -28,6 +28,7 @@ public:
 
 private:
 	UGISStaticTileRendererComponent RenderComponent;
+	void RefreshConfig() override;
 	void TestCameraMovement();
 public:
 	UPROPERTY(BlueprintAssignable, Category="Canvas")
@@ -37,4 +38,9 @@ public:
 	
 private:
 	FGISPoint ConvertLocalPointToGISPoint(FVector2D LocalCoord) const;
+private:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "StreamingConfig")    
+	FGISStreamingConfig InStreamingConfig;  
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "StreamingConfig")
+	FInputTileData InputConfigData;
 };

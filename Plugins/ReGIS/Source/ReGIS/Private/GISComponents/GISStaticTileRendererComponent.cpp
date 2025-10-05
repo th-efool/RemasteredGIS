@@ -3,6 +3,7 @@
 
 #include "GISComponents/GISStaticTileRendererComponent.h"
 
+#include "Compression/lz4.h"
 #include "DBMS/DataManager.h"
 #include "Utils/GISErrorHandler.h"
 
@@ -65,6 +66,52 @@ void UGISStaticTileRendererComponent::UpdateLocation(IGISCustomDatatypes& tileLo
 	FetchVisibleTiles();
 }
 
+void UGISStaticTileRendererComponent::FetchVisibleTiles()
+{
+	UDataManager* DataManager= GetWorld()->GetGameInstance()->GetSubsystem<UDataManager>();
+	if (DataManager==nullptr){return;}
+	
+	FetchIndex++;
+	unsigned int ThisFetchIndex = FetchIndex;
+	if (!StaticStreamer){return;}
+	int TopLeftCornerX = CenterTileID.X-0.5*(InStreamingConfig.AtlasGridLength);
+	int TopLeftCornerY = CenterTileID.Y-0.5*(InStreamingConfig.AtlasGridLength);
+	int Zoom = CenterTileID.ZoomLevel;
+	if (TopLeftCornerX<0 || TopLeftCornerY<0 || Zoom<0){return;}
+	TWeakObjectPtr<UGISStaticTileRendererComponent> WeakThis(this);
+
+	VisibleTilesID.Empty();
+	StaticStreamer->ReInitVisibleTiles(); // Converting All Tiles TO WHITE TILES 
+	for (int i=0; i< InStreamingConfig.AtlasGridLength; i++)
+	{
+		for (int j=0; j< InStreamingConfig.AtlasGridLength; j++)
+		{
+			int TileIndex = j*(InStreamingConfig.AtlasGridLength)+i;
+			FGISTileID TileID = FGISTileID(Zoom, TopLeftCornerX+i, TopLeftCornerY+j);
+			VisibleTilesID.Add(TileID);
+			TFunction<void(UTexture2D*)> Callback =
+			[WeakThis,ThisFetchIndex,TileIndex ](UTexture2D* InTexture)
+			{
+				if (WeakThis.IsValid())
+				{WeakThis->HandleTexture(InTexture,ThisFetchIndex,TileIndex);}
+			};
+			DataManager->GetStaticTile(TileID, Callback );
+		}
+	}
+}
+
+void UGISStaticTileRendererComponent::HandleTexture(UTexture2D* Texture, unsigned int fetchIndex, int TileIndex) const
+{
+	if (FetchIndex == fetchIndex)
+	{		UE_LOG(LogTemp, Display, TEXT("SUCCESSFUL  FetchIndex: %d , TileIndex: %d"), fetchIndex, TileIndex)
+		StaticStreamer->SetVisibleTileIndexed(Texture, TileIndex);
+	} else
+	{
+		UE_LOG(LogTemp, Display, TEXT("FAILED  FetchIndex: %d , TileIndex: %d"), fetchIndex, TileIndex)
+	
+	}
+}
+
 // Called when the game starts
 void UGISStaticTileRendererComponent::BeginPlay()
 {
@@ -75,21 +122,7 @@ void UGISStaticTileRendererComponent::BeginPlay()
 
 	GetWorld()->GetTimerManager().SetTimer(TempHandle, [this]()
 	{
-		UDataManager* DataManager = GetGameInstance() ? GetGameInstance()->GetSubsystem<UDataManager>() : nullptr;
-		if (!DataManager)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("DataManager not ready yet!"));
-			return;
-		}
-
-		if (!StaticStreamer)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("StaticStreamer not ready!"));
-			return;
-		}
-		
 		FetchVisibleTiles();
-	
 	}, 1.0f, false);
 	
 	
@@ -107,6 +140,24 @@ void UGISStaticTileRendererComponent::TickComponent(float DeltaTime, ELevelTick 
 
 void UGISStaticTileRendererComponent::RefreshConfig()
 {
+	if (InputConfigData.UseLatitudeLongitude)
+	{
+		FGISPoint Point= FGISPoint(InputConfigData.Latitude,InputConfigData.Longitude,0, InputConfigData.ZoomLevel);
+		std::pair<int, int> TileID = GISConversionEngine::LatLonToTile(Point);	
+		CenterTileID=FGISTileID(InputConfigData.ZoomLevel, TileID.first, TileID.second);
+
+	} else
+	{
+		CenterTileID=FGISTileID(InputConfigData.ZoomLevel, InputConfigData.CenterX, InputConfigData.CenterY);
+	}
+	GIS_HANDLE_IF (TileMeshInstance.TileBaseMaterialAsset)  
+	{  
+		TileMeshInstance.DynamicMaterial = UMaterialInstanceDynamic::Create(TileMeshInstance.TileBaseMaterialAsset, TileMeshInstance.TileMesh);  
+	}  
+	GIS_HANDLE_IF (TileMeshInstance.TileBaseMeshAsset)  
+	{  
+		TileMeshInstance.TileMesh->SetStaticMesh(TileMeshInstance.TileBaseMeshAsset);  
+	}
 }
 
 void UGISStaticTileRendererComponent::InitStaticStreaming()

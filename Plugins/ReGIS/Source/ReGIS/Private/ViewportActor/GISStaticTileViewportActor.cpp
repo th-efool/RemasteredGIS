@@ -7,17 +7,13 @@
 #include "Utils/GISConversionEngine.h"
 
 AGISStaticTileViewportActor::AGISStaticTileViewportActor()
-{
-
-}
+{}
 
 
 
 void AGISStaticTileViewportActor::BeginPlay()
 {
 	Super::BeginPlay();
-
-	
 	APlayerController* PC = GetWorld()->GetFirstPlayerController();
 	if (PC)
 	{
@@ -30,9 +26,12 @@ void AGISStaticTileViewportActor::BeginPlay()
 		PC->bEnableMouseOverEvents = true;
 	}
 
+	// TILE RENDERER COMOPONENT DO IT WITH, perhaps after an delay 
+	/*
 	if (TileMesh){
 	TileMesh->OnClicked.AddDynamic(this, &AGISStaticTileViewportActor::HandleOnClicked);
 	}
+	*/
 	
 
 }
@@ -45,86 +44,12 @@ void AGISStaticTileViewportActor::Tick(float DeltaTime)
 
 }
 
-void AGISStaticTileViewportActor::FetchVisibleTiles()
-{
-	FetchIndex++;
-	unsigned int ThisFetchIndex = FetchIndex;
-	if (!StaticStreamer){return;}
-	int TopLeftCornerX = CenterTileID.X-0.5*(InStreamingConfig.GridLengthX);
-	int TopLeftCornerY = CenterTileID.Y-0.5*(InStreamingConfig.GridLengthY);
-	int Zoom = CenterTileID.ZoomLevel;
-	if (TopLeftCornerX<0 || TopLeftCornerY<0 || Zoom<0)
-	{
-		return;
-	}
-	TWeakObjectPtr<AGISStaticTileViewportActor> WeakThis(this);
-
-	
-
-	UDataManager* DataManager = GetGameInstance()->GetSubsystem<UDataManager>();
-
-	VisibleTilesID.Empty();
-	StaticStreamer->ReInitVisibleTiles(); // Converting All Tiles TO WHITE TILES 
-	for (int i=0; i< InStreamingConfig.GridLengthX; i++)
-	{
-		for (int j=0; j< InStreamingConfig.GridLengthY; j++)
-		{
-			int TileIndex = j*(InStreamingConfig.GridLengthY)+i;
-			FGISTileID TileID = FGISTileID(Zoom, TopLeftCornerX+i, TopLeftCornerY+j);
-			VisibleTilesID.Add(TileID);
-			TFunction<void(UTexture2D*)> Callback =
-			[WeakThis,ThisFetchIndex,TileIndex ](UTexture2D* InTexture)
-			{
-				if (WeakThis.IsValid())
-					{
-						WeakThis->HandleTexture(InTexture,ThisFetchIndex,TileIndex);
-					}
-			};
-			DataManager->GetStaticTile(TileID, Callback );
-		}
-	}
-
-}
-
-void AGISStaticTileViewportActor::HandleTexture(UTexture2D* Texture, unsigned int fetchIndex, int TileIndex) const
-{
-	
-	if (FetchIndex == fetchIndex)
-	{		UE_LOG(LogTemp, Display, TEXT("SUCCESSFUL  FetchIndex: %d , TileIndex: %d"), fetchIndex, TileIndex)
-		StaticStreamer->SetVisibleTileIndexed(Texture, TileIndex);
-	} else
-	{
-		UE_LOG(LogTemp, Display, TEXT("FAILED  FetchIndex: %d , TileIndex: %d"), fetchIndex, TileIndex)
-	
-	}
-}
-
-
-
-
 
 void AGISStaticTileViewportActor::RefreshConfig()
 {
 	Super::RefreshConfig();
-	if (InputConfigData.UseLatitudeLongitude)
-	{
-		FGISPoint Point= FGISPoint(InputConfigData.Latitude,InputConfigData.Longitude,0, InputConfigData.ZoomLevel);
-		std::pair<int, int> TileID = GISConversionEngine::LatLonToTile(Point);	
-		CenterTileID=FGISTileID(InputConfigData.ZoomLevel, TileID.first, TileID.second);
-
-	} else
-	{
-		CenterTileID=FGISTileID(InputConfigData.ZoomLevel, InputConfigData.CenterX, InputConfigData.CenterY);
-	}
-	GIS_HANDLE_IF (TileBaseMaterialAsset)  
-	{  
-		DynamicMaterial = UMaterialInstanceDynamic::Create(TileBaseMaterialAsset, TileMesh);  
-	}  
-	GIS_HANDLE_IF (TileBaseMeshAsset)  
-	{  
-		TileMesh->SetStaticMesh(TileBaseMeshAsset);  
-	}
-	
+	// REFRESH CONFIG CALL IN ACTOR COMPONENT
+	return;
 }
 
 
@@ -157,6 +82,7 @@ void AGISStaticTileViewportActor::TestCameraMovement()
 	SmoothedY = FMath::FInterpTo(SmoothedY, TargetY, DeltaTime, SmoothInterpSpeed);
 
 	// --- Apply camera offset ---
+	// REPLACE WITH AN METHOD THAT USE GISSTATICTILERENDERERCOMPONENT
 	StaticStreamer->SetCameraOffset(SmoothedX, SmoothedY);
 }
 
@@ -193,17 +119,17 @@ FGISPoint AGISStaticTileViewportActor::ConvertLocalPointToGISPoint(FVector2D Loc
 	double scaledY = inputY / 50.0;
 
 	// 3) Unit lengths from center (after scaling by grid)
-	double unitLenFromCenterX = scaledX * (0.5f*InStreamingConfig.CameraGridLengthX);
-	double unitLenFromCenterY = scaledY * (0.5*InStreamingConfig.CameraGridLengthY);
+	double unitLenFromCenterX = scaledX * (0.5f*InStreamingConfig.CameraGridLength);
+	double unitLenFromCenterY = scaledY * (0.5*InStreamingConfig.CameraGridLength;
 
 	// 4) [Reserved] pseudo center tile distance (relative to center tile top-left)
-	double CenterTileTLX = (InStreamingConfig.GridLengthX%2 ==1) ? -0.5f : -1.f; 
-	double CenterTileTLY = (InStreamingConfig.GridLengthY%2 ==1) ? 0.5f : 1.f;
+	double CenterTileTLX = (InStreamingConfig.AtlasGridLength%2 ==1) ? -0.5f : -1.f; 
+	double CenterTileTLY = (InStreamingConfig.AtlasGridLength%2 ==1) ? 0.5f : 1.f;
 
 	// 5) Camera offsets (raw + localized)
 	FVector2D cameraOffsetRaw = StaticStreamer->GetCameraOffset();
-	float MaxPossibleTileOffsetX= (InStreamingConfig.GridLengthX-InStreamingConfig.CameraGridLengthX)/2.f;
-	float MaxPossibleTileOffsetY= (InStreamingConfig.GridLengthX-InStreamingConfig.CameraGridLengthY)/2.f;
+	float MaxPossibleTileOffsetX= (InStreamingConfig.AtlasGridLength-InStreamingConfig.CameraGridLength)/2.f;
+	float MaxPossibleTileOffsetY= (InStreamingConfig.AtlasGridLength-InStreamingConfig.CameraGridLength)/2.f;
 	double localizedCamOffsetX = -(cameraOffsetRaw.X ) * MaxPossibleTileOffsetX;
 	double localizedCamOffsetY = (cameraOffsetRaw.Y ) * MaxPossibleTileOffsetY;
 
