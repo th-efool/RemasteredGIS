@@ -18,11 +18,11 @@ class REGIS_API UGISDataType : public UObject
 };
 
 
-struct ICustomParams{
+struct IGISCustomDatatypes{
 };
 
 
-struct FGISPoint
+struct FGISPoint : IGISCustomDatatypes
 {
 	double Latitude;
 	double Longitude;
@@ -43,15 +43,51 @@ USTRUCT(BlueprintType)
 struct FGISStreamingConfig
 {
 	GENERATED_BODY();
-	int32 TileSizeX = 256;
-	int32 TileSizeY = 256;
+	int32 TileSize = 256;
 	UPROPERTY(EditAnywhere)
-	int8 GridLengthX = 4;
+	int8 AtlasGridLength = 4;
 	UPROPERTY(EditAnywhere)
-	int8 GridLengthY = 4;
-	UPROPERTY(EditAnywhere)
-	int8 CameraGridLengthX = 2;
-	UPROPERTY(EditAnywhere)
-	int8 CameraGridLengthY = 2;
+	int8 CameraGridLength = 2;
 };
 
+
+
+USTRUCT(BlueprintType)
+struct FInputTileData
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Tile")
+	int ZoomLevel = 14;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Tile")
+	bool UseLatitudeLongitude = true;
+
+	// Only editable when UseLatitudeLongitude == false
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Tile", meta=(EditCondition="!UseLatitudeLongitude"))
+	int CenterX = 100;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Tile", meta=(EditCondition="!UseLatitudeLongitude"))
+	int CenterY = 100;
+
+	// Only editable when UseLatitudeLongitude == true
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Tile", meta=(EditCondition="UseLatitudeLongitude"))
+	double Latitude = 28.61;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Tile", meta=(EditCondition="UseLatitudeLongitude"))
+	double Longitude = 77.23;
+};
+
+USTRUCT(BlueprintType)
+struct FTileMeshInstance
+{
+	GENERATED_BODY()
+	UPROPERTY()
+	UStaticMeshComponent* TileMesh;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
+	UStaticMesh* TileBaseMeshAsset;    
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")    
+	UMaterialInterface* TileBaseMaterialAsset;
+	UPROPERTY()
+	UMaterialInstanceDynamic* DynamicMaterial;    
+};

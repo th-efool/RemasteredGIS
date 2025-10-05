@@ -1,6 +1,7 @@
 ﻿#pragma once
+#include "Utils/GISDataType.h"
 
-struct FGISIdentifier
+struct FGISIdentifier : IGISCustomDatatypes
 {
 	FGISIdentifier();
 	FGISIdentifier(int64 InHash);;
@@ -25,7 +26,8 @@ struct FGISTreeIdentifier : public FGISIdentifier
 
 };
 
-struct FGISTileID :FGISTreeIdentifier {
+struct FGISTileID :FGISTreeIdentifier
+{
 	static constexpr int8 MaxChildren = 4;
 	static constexpr int8 MaxParents  = 1;
 

@@ -16,7 +16,7 @@ public:
 	virtual ~GISAPIBase();
 
 public:
-	virtual void MakeApiCall(ICustomParams& Params, TFunction<void(void*)> callback);
+	virtual void MakeApiCall(IGISCustomDatatypes& Params, TFunction<void(void*)> callback);
 	TArray<TSharedRef<IHttpRequest>> ActiveRequests;
 	TMap<FHttpRequestPtr,TFunction<void(void*)> > PendingCallbacks;
 
@@ -24,7 +24,7 @@ public:
 
 	
 	protected:
-	virtual FString buildAPIURL(ICustomParams& Params)=0;
+	virtual FString buildAPIURL(IGISCustomDatatypes& Params)=0;
 
 	virtual void HandleAPIResponse(FHttpResponsePtr Response, TFunction<void(void*)> callback);
 

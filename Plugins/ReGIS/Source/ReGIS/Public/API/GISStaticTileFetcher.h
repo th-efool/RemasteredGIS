@@ -2,7 +2,7 @@
 #include "GISAPIBase.h"
 #include "Utils/GISDataType.h"
 
-struct ParamsStaticTileFetcher : ICustomParams
+struct ParamsStaticTileFetcher : IGISCustomDatatypes
 {
 	inline ParamsStaticTileFetcher(FGISTileID TileID){ this->TileID = TileID; }
 	FGISTileID TileID;
@@ -12,10 +12,10 @@ struct ParamsStaticTileFetcher : ICustomParams
 class GISStaticTileFetcher : GISAPIBase
 {
 public:
-	virtual void MakeApiCall(ICustomParams& Params, TFunction<void(void*)> callback) override;
+	virtual void MakeApiCall(IGISCustomDatatypes& Params, TFunction<void(void*)> callback) override;
 
 private:
-	virtual FString buildAPIURL(ICustomParams& Params) override;
+	virtual FString buildAPIURL(IGISCustomDatatypes& Params) override;
 	virtual void HandleAPIResponse(FHttpResponsePtr Response, TFunction<void(void*)> callback) override;
 public: 
 	virtual void* GetFallbackResource() override;

@@ -86,12 +86,12 @@ UTexture2D* GISStaticTileFetcher::GetMarkedDebugResource(FColor FillColor)
 	return DebugTexture;
 }
 
-void GISStaticTileFetcher::MakeApiCall(ICustomParams& Params, TFunction<void(void*)> callback)
+void GISStaticTileFetcher::MakeApiCall(IGISCustomDatatypes& Params, TFunction<void(void*)> callback)
 {
 	GISAPIBase::MakeApiCall(Params, callback);
 }
 
-FString GISStaticTileFetcher::buildAPIURL(ICustomParams& Params)
+FString GISStaticTileFetcher::buildAPIURL(IGISCustomDatatypes& Params)
 {
 	ParamsStaticTileFetcher StaticTileParams = static_cast<ParamsStaticTileFetcher&>(Params);
 	FString AccessToken = TEXT("pk.eyJ1IjoiYWdyaW1zaW5naHgiLCJhIjoiY21ieTk4dTk3MWtpZTJqcXVvcnVicDJhciJ9.k5ZiiC0KNvTaNIzI7uo7lA");

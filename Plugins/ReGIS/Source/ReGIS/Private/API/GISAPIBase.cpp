@@ -16,7 +16,7 @@ GISAPIBase::GISAPIBase()
 {
 }
 
-void GISAPIBase::MakeApiCall(ICustomParams& Params, TFunction<void(void*)> callback)
+void GISAPIBase::MakeApiCall(IGISCustomDatatypes& Params, TFunction<void(void*)> callback)
 {
 	TSharedRef<IHttpRequest> Request = FHttpModule::Get().CreateRequest();
 	Request->SetURL(buildAPIURL(Params));

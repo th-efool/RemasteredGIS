@@ -14,11 +14,16 @@
   <component name="ChangeListManager">
     <list default="true" id="967cc7e2-8a47-44aa-ae05-a3fa208b46bf" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.RemasteredGIS/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.RemasteredGIS/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/GISStaticTileViewportActor.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/ViewportActor/GISStaticTileViewportActor.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/GISTileViewportActor.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/ViewportActor/GISTileViewportActor.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/GISStaticTileViewportActor.h" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/ViewportActor/GISStaticTileViewportActor.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/GISTileViewportActor.h" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/ViewportActor/GISTileViewportActor.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/RemasteredGIS.uproject" beforeDir="false" afterPath="$PROJECT_DIR$/RemasteredGIS.uproject" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/API/GISAPIBase.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/API/GISAPIBase.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/API/GISStaticTileFetcher.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/API/GISStaticTileFetcher.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/GISComponents/GISStaticTileRendererComponent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/GISComponents/GISStaticTileRendererComponent.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/ViewportActor/GISStaticTileViewportActor.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/ViewportActor/GISStaticTileViewportActor.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/API/GISAPIBase.h" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/API/GISAPIBase.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/API/GISStaticTileFetcher.h" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/API/GISStaticTileFetcher.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/DBMS/FGISIdentifier.h" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/DBMS/FGISIdentifier.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/GISComponents/GISStaticTileRendererComponent.h" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/GISComponents/GISStaticTileRendererComponent.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/Utils/GISDataType.h" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/Utils/GISDataType.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/ViewportActor/GISStaticTileViewportActor.h" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/ViewportActor/GISStaticTileViewportActor.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -200,7 +205,7 @@
       <workItem from="1759471454666" duration="14421000" />
       <workItem from="1759514799972" duration="16984000" />
       <workItem from="1759558361402" duration="5357000" />
-      <workItem from="1759570626065" duration="4424000" />
+      <workItem from="1759570626065" duration="11350000" />
     </task>
     <servers />
   </component>

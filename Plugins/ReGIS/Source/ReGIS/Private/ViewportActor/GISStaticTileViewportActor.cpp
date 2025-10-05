@@ -8,57 +8,15 @@
 
 AGISStaticTileViewportActor::AGISStaticTileViewportActor()
 {
-	TileMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("TileMesh"));  
-	TileMesh->SetupAttachment(RootSceneComponent);  
-	TileMesh->SetWorldScale3D(FVector(5,5,1));
-	FetchIndex=0;
-	TileMesh->SetGenerateOverlapEvents(true);
-	TileMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	TileMesh->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
-	TileMesh->SetCollisionObjectType(ECC_WorldStatic);
-
-	TileMesh->SetNotifyRigidBodyCollision(true);
-	TileMesh->SetCollisionResponseToAllChannels(ECR_Block);
-	TileMesh->bSelectable = true;
-
-	// Let it receive input clicks
-	TileMesh->SetEnableGravity(false);
-	TileMesh->bEditableWhenInherited = true;
 
 }
 
-int AGISStaticTileViewportActor::GetCenterTileIndex() const
-{int mid = (InStreamingConfig.GridLengthX - 1) / 2;          // 0-based row/col
-	int centerIndex = mid * InStreamingConfig.GridLengthX + mid + 1; // 1-based sequential index
-	centerIndex-=1; //Counting Starts From Zero
-	return centerIndex;
-}
 
 
 void AGISStaticTileViewportActor::BeginPlay()
 {
 	Super::BeginPlay();
-	InitStaticStreaming();
 
-	FTimerHandle TempHandle;
-	GetWorldTimerManager().SetTimer(TempHandle, [this]()
-	{
-		UDataManager* DataManager = GetGameInstance() ? GetGameInstance()->GetSubsystem<UDataManager>() : nullptr;
-		if (!DataManager)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("DataManager not ready yet!"));
-			return;
-		}
-
-		if (!StaticStreamer)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("StaticStreamer not ready!"));
-			return;
-		}
-		
-		FetchVisibleTiles();
-	
-	}, 1.0f, false);
 	
 	APlayerController* PC = GetWorld()->GetFirstPlayerController();
 	if (PC)
@@ -143,23 +101,7 @@ void AGISStaticTileViewportActor::HandleTexture(UTexture2D* Texture, unsigned in
 
 
 
-void AGISStaticTileViewportActor::InitStaticStreaming()
-{
-	StaticStreamer = new StaticStreaming(
-		InStreamingConfig.CameraGridLengthX,InStreamingConfig.CameraGridLengthY,
-		InStreamingConfig.GridLengthX, InStreamingConfig.GridLengthY,
-		InStreamingConfig.TileSizeX, InStreamingConfig.TileSizeY
-		);
-	
-	GIS_HANDLE_IF (DynamicMaterial != nullptr)
-	{
-		DynamicMaterial->SetTextureParameterValue("BaseColor",StaticStreamer->GetStreamingTexture());
-		TileMesh->SetMaterial(0, DynamicMaterial);
-	}
-	StaticStreamer->UpdateAtlas();
-	StaticStreamer->UpdateStreaming();
-	
-}
+
 
 void AGISStaticTileViewportActor::RefreshConfig()
 {
