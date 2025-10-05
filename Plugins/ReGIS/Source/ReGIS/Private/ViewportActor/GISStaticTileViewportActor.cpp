@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "GISStaticTileViewportActor.h"
+#include "ViewportActor/GISStaticTileViewportActor.h"
 #include "DBMS/DataManager.h"
 #include "Utils/GISErrorHandler.h"
 #include "Utils/GISConversionEngine.h"
