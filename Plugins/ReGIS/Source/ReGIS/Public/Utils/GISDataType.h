@@ -3,13 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "DBMS/FGISIdentifier.h"
-#include "UObject/NoExportTypes.h"
 #include "GISDataType.generated.h"
 
-/**
- * 
- */
+
 UCLASS()
 class REGIS_API UGISDataType : public UObject
 {
@@ -78,16 +74,3 @@ struct FInputTileData
 	double Longitude = 77.23;
 };
 
-USTRUCT(BlueprintType)
-struct FTileMeshInstance
-{
-	GENERATED_BODY()
-	UPROPERTY()
-	UStaticMeshComponent* TileMesh;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")
-	UStaticMesh* TileBaseMeshAsset;    
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tile")    
-	UMaterialInterface* TileBaseMaterialAsset;
-	UPROPERTY()
-	UMaterialInstanceDynamic* DynamicMaterial;    
-};

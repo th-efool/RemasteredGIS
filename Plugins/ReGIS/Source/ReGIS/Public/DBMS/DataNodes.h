@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "DataResource.h"
 #include "Utils/GISDataType.h"
+#include "DBMS/FGISIdentifier.h"
 #include "Utils/GISErrorHandler.h"
 
 

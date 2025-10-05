@@ -5,8 +5,7 @@
 #include "CoreMinimal.h"
 #include "GISTileViewportActor.h"
 #include  "Utils/GISDataType.h"
-#include "Streaming/StaticStreaming.h"
-#include "Utils/GISConversionEngine.h"
+
 #include <utility>
 
 #include "GISComponents/GISStaticTileRendererComponent.h"
@@ -26,21 +25,34 @@ public:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 
-private:
-	UGISStaticTileRendererComponent RenderComponent;
-	void RefreshConfig() override;
-	void TestCameraMovement();
+
+	// INPUT & USER INTERACTION
 public:
 	UPROPERTY(BlueprintAssignable, Category="Canvas")
 	FOnCanvasClicked OnCanvasClicked;
 	UFUNCTION()
 	void HandleOnClicked(UPrimitiveComponent* TouchedComponent, FKey ButtonPressed);
 	
+	// COMPONENTS
 private:
-	FGISPoint ConvertLocalPointToGISPoint(FVector2D LocalCoord) const;
+	UPROPERTY()
+	UGISStaticTileRendererComponent* RenderComponent;
+
+	// UPDATE CONIFGURATION
 private:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "StreamingConfig")    
+	void RefreshConfig() override;
+	void OnConstruction(const FTransform& Transform) override;    
+	void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent);
+	
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "StreamingConfig")
+	UStaticMesh* TileBaseMeshAsset;    
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "StreamingConfig")    
+	UMaterialInterface* TileBaseMaterialAsset;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "StreamingConfig")
 	FGISStreamingConfig InStreamingConfig;  
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "StreamingConfig")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "StreamingConfig")
 	FInputTileData InputConfigData;
+
+
 };

@@ -3,8 +3,9 @@
 
 #include "GISComponents/GISStaticTileRendererComponent.h"
 
-#include "Compression/lz4.h"
+#include "Binding/BrushBinding.h"
 #include "DBMS/DataManager.h"
+#include "Utils/GISConversionEngine.h"
 #include "Utils/GISErrorHandler.h"
 
 // Sets default values for this component's properties
@@ -14,30 +15,34 @@ UGISStaticTileRendererComponent::UGISStaticTileRendererComponent()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 
-	TileMeshInstance.TileMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("TileMesh"));  
-	TileMeshInstance.TileMesh->SetWorldScale3D(FVector(5,5,1));
+	TileMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("TileMesh"));
+	TileMesh->SetupAttachment(this);
+	TileMesh->SetWorldScale3D(FVector(5,5,1));
 	FetchIndex=0;
-	TileMeshInstance.TileMesh->SetGenerateOverlapEvents(true);
-	TileMeshInstance.TileMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	TileMeshInstance.TileMesh->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
-	TileMeshInstance.TileMesh->SetCollisionObjectType(ECC_WorldStatic);
+	TileMesh->SetGenerateOverlapEvents(true);
+	TileMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	TileMesh->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
+	TileMesh->SetCollisionObjectType(ECC_WorldStatic);
 
-	TileMeshInstance.TileMesh->SetNotifyRigidBodyCollision(true);
-	TileMeshInstance.TileMesh->SetCollisionResponseToAllChannels(ECR_Block);
-	TileMeshInstance.TileMesh->bSelectable = true;
+	TileMesh->SetNotifyRigidBodyCollision(true);
+	TileMesh->SetCollisionResponseToAllChannels(ECR_Block);
+	TileMesh->bSelectable = true;
 
 	// Let it receive input clicks
-	TileMeshInstance.TileMesh->SetEnableGravity(false);
-	TileMeshInstance.TileMesh->bEditableWhenInherited = true;
+	TileMesh->SetEnableGravity(false);
+	TileMesh->bEditableWhenInherited = true;
 }
 
 
-FGISTileID UGISStaticTileRendererComponent::GetCenterTileID()
+FGISTileID UGISStaticTileRendererComponent::GetLogicalCenterTileID()
+{return CenterTileID;}
+
+FGISTileID UGISStaticTileRendererComponent::GetVisualCenterTileID()
 {
 	if (VisibleTilesID.Num()>0)
 	{
-		int mid = (InStreamingConfig.AtlasGridLength - 1) / 2;          // 0-based row/col
-		int centerIndex = mid * InStreamingConfig.AtlasGridLength + mid + 1; // 1-based sequential index
+		int mid = (StreamingConfig.AtlasGridLength - 1) / 2;          // 0-based row/col
+		int centerIndex = mid * StreamingConfig.AtlasGridLength + mid + 1; // 1-based sequential index
 		centerIndex-=1;
 		return VisibleTilesID[centerIndex];
 	}
@@ -46,24 +51,61 @@ FGISTileID UGISStaticTileRendererComponent::GetCenterTileID()
 
 int UGISStaticTileRendererComponent::GetCenterTileIndex() const
 {
-	int mid = (InStreamingConfig.AtlasGridLength - 1) / 2;          // 0-based row/col
-	int centerIndex = mid * InStreamingConfig.AtlasGridLength + mid + 1; // 1-based sequential index
+	int mid = (StreamingConfig.AtlasGridLength - 1) / 2;          // 0-based row/col
+	int centerIndex = mid * StreamingConfig.AtlasGridLength + mid + 1; // 1-based sequential index
 	centerIndex-=1; //Counting Starts From Zero
 	return centerIndex;
 }
 
-void UGISStaticTileRendererComponent::UpdateLocation(IGISCustomDatatypes& tileLocation)
+
+
+void UGISStaticTileRendererComponent::UpdateLocation(FGISTileID newCentertileID)
 {
-	if (auto* tileID = dynamic_cast<FGISTileID*>(&tileLocation))
-	{
-		CenterTileID = *tileID;
-	}
-	else if (auto* tilePoint = dynamic_cast<FGISPoint*>(&tileLocation))
-	{
-		auto [x, y] = GISConversionEngine::LatLonToTile(*tilePoint);
-		CenterTileID = FGISTileID(tilePoint->Zoom, x, y);
-	}
+	CenterTileID = newCentertileID;
 	FetchVisibleTiles();
+}
+
+void UGISStaticTileRendererComponent::UpdateLocation(FGISPoint newCenterLongLat)
+{
+	auto [x, y] = GISConversionEngine::LatLonToTile(newCenterLongLat);
+	CenterTileID = FGISTileID(newCenterLongLat.Zoom, x, y);
+	FetchVisibleTiles();
+}
+
+void UGISStaticTileRendererComponent::Pan(float& X, float& Y)
+{
+	if (X>0.8 || Y>0.8 || X<-0.8 || Y<-0.8)
+	{
+		FGISTileID NewCenter = CenterTileID;
+		if (X>0.8)
+		{
+			NewCenter.X++;
+			X=X-1;
+		}
+		if (Y>0.8)
+		{
+			NewCenter.Y++;
+			Y=Y-1;
+		}
+		if (X<-0.8)
+		{
+			NewCenter.X--;
+			X=X+1;
+		}
+		if (Y<-0.8)
+		{
+			NewCenter.Y--;
+			Y=Y+1;
+		}
+		UpdateLocation(NewCenter);
+	}
+	StaticStreamer->SetCameraOffset(X, Y);
+}
+
+void UGISStaticTileRendererComponent::Zoom(int Delta)
+{
+	CenterTileID.ZoomLevel += Delta;
+	UpdateLocation(CenterTileID);
 }
 
 void UGISStaticTileRendererComponent::FetchVisibleTiles()
@@ -74,19 +116,19 @@ void UGISStaticTileRendererComponent::FetchVisibleTiles()
 	FetchIndex++;
 	unsigned int ThisFetchIndex = FetchIndex;
 	if (!StaticStreamer){return;}
-	int TopLeftCornerX = CenterTileID.X-0.5*(InStreamingConfig.AtlasGridLength);
-	int TopLeftCornerY = CenterTileID.Y-0.5*(InStreamingConfig.AtlasGridLength);
+	int TopLeftCornerX = CenterTileID.X-0.5*(StreamingConfig.AtlasGridLength);
+	int TopLeftCornerY = CenterTileID.Y-0.5*(StreamingConfig.AtlasGridLength);
 	int Zoom = CenterTileID.ZoomLevel;
 	if (TopLeftCornerX<0 || TopLeftCornerY<0 || Zoom<0){return;}
 	TWeakObjectPtr<UGISStaticTileRendererComponent> WeakThis(this);
 
 	VisibleTilesID.Empty();
 	StaticStreamer->ReInitVisibleTiles(); // Converting All Tiles TO WHITE TILES 
-	for (int i=0; i< InStreamingConfig.AtlasGridLength; i++)
+	for (int i=0; i< StreamingConfig.AtlasGridLength; i++)
 	{
-		for (int j=0; j< InStreamingConfig.AtlasGridLength; j++)
+		for (int j=0; j< StreamingConfig.AtlasGridLength; j++)
 		{
-			int TileIndex = j*(InStreamingConfig.AtlasGridLength)+i;
+			int TileIndex = j*(StreamingConfig.AtlasGridLength)+i;
 			FGISTileID TileID = FGISTileID(Zoom, TopLeftCornerX+i, TopLeftCornerY+j);
 			VisibleTilesID.Add(TileID);
 			TFunction<void(UTexture2D*)> Callback =
@@ -102,14 +144,8 @@ void UGISStaticTileRendererComponent::FetchVisibleTiles()
 
 void UGISStaticTileRendererComponent::HandleTexture(UTexture2D* Texture, unsigned int fetchIndex, int TileIndex) const
 {
-	if (FetchIndex == fetchIndex)
-	{		UE_LOG(LogTemp, Display, TEXT("SUCCESSFUL  FetchIndex: %d , TileIndex: %d"), fetchIndex, TileIndex)
-		StaticStreamer->SetVisibleTileIndexed(Texture, TileIndex);
-	} else
-	{
-		UE_LOG(LogTemp, Display, TEXT("FAILED  FetchIndex: %d , TileIndex: %d"), fetchIndex, TileIndex)
-	
-	}
+	if (FetchIndex != fetchIndex){return;}
+	StaticStreamer->SetVisibleTileIndexed(Texture, TileIndex);
 }
 
 // Called when the game starts
@@ -118,14 +154,14 @@ void UGISStaticTileRendererComponent::BeginPlay()
 	Super::BeginPlay();
 
 	InitStaticStreaming();
+	
 	FTimerHandle TempHandle;
-
-	GetWorld()->GetTimerManager().SetTimer(TempHandle, [this]()
-	{
-		FetchVisibleTiles();
-	}, 1.0f, false);
-	
-	
+	GetWorld()->GetTimerManager().SetTimer(
+		TempHandle,
+		[this](){FetchVisibleTiles();},
+		1.0f, false
+		);
+		
 }
 
 
@@ -133,46 +169,142 @@ void UGISStaticTileRendererComponent::BeginPlay()
 void UGISStaticTileRendererComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	TestCameraMovement();
 
 	// ...
 }
 
-
-void UGISStaticTileRendererComponent::RefreshConfig()
+FGISPoint UGISStaticTileRendererComponent::ConvertLocalPointToGISPoint(FVector2D LocalCoord) const
 {
-	if (InputConfigData.UseLatitudeLongitude)
+	// 1) Invert Y to match coordinate convention
+	double inputY = -LocalCoord.Y;
+
+	// 2) Scale input coordinates (/100 step)
+	double scaledX = LocalCoord.X / 50.0;
+	double scaledY = inputY / 50.0;
+
+	// 3) Unit lengths from center (after scaling by grid)
+	double unitLenFromCenterX = scaledX * (0.5f*StreamingConfig.CameraGridLength);
+	double unitLenFromCenterY = scaledY * (0.5*StreamingConfig.CameraGridLength);
+
+	// 4) [Reserved] pseudo center tile distance (relative to center tile top-left)
+	double CenterTileTLX = (StreamingConfig.AtlasGridLength%2 ==1) ? -0.5f : -1.f; 
+	double CenterTileTLY = (StreamingConfig.AtlasGridLength%2 ==1) ? 0.5f : 1.f;
+
+	// 5) Camera offsets (raw + localized)
+	FVector2D cameraOffsetRaw = StaticStreamer->GetCameraOffset();
+	float MaxPossibleTileOffsetX= (StreamingConfig.AtlasGridLength-StreamingConfig.CameraGridLength)/2.f;
+	float MaxPossibleTileOffsetY= (StreamingConfig.AtlasGridLength-StreamingConfig.CameraGridLength)/2.f;
+	double localizedCamOffsetX = -(cameraOffsetRaw.X ) * MaxPossibleTileOffsetX;
+	double localizedCamOffsetY = (cameraOffsetRaw.Y ) * MaxPossibleTileOffsetY;
+
+	// 6) Final center tile distances
+	double centerTileDistanceX = unitLenFromCenterX-(CenterTileTLX+localizedCamOffsetX);
+	double centerTileDistanceY = unitLenFromCenterY-(CenterTileTLY+localizedCamOffsetY);
+	
+	// 7) Build minimal debug message
+	FString TraceMsg;
+	TraceMsg += FString::Printf(TEXT("CANVAS LOCAL HIT TRACE\n"));
+	TraceMsg += FString::Printf(TEXT("1) DistanceFromCenter (inTileUnit): X=%.4f, Y=%.4f\n"), unitLenFromCenterX, unitLenFromCenterY);
+	TraceMsg += FString::Printf(TEXT("2) CENTER TILE TOP LEFT:        X=%.4f, Y=%.4f\n"),
+								CenterTileTLX, CenterTileTLY);
+	TraceMsg += FString::Printf(TEXT("3) CAMERA OFFSET RAW:              X=%.4f, Y=%.4f\n"), cameraOffsetRaw.X, cameraOffsetRaw.Y);
+	TraceMsg += FString::Printf(TEXT("   LOCALIZED CAM OFFSET:           X=%.4f, Y=%.4f\n"),
+								localizedCamOffsetX, localizedCamOffsetY);
+	TraceMsg += FString::Printf(TEXT("4) FINAL CenterTileDistance:       X=%.4f, Y=%.4f\n"), centerTileDistanceX, centerTileDistanceY);
+
+	// 8) Single on-screen print
+	GEngine->AddOnScreenDebugMessage(-1, 30.f, FColor::Green, TraceMsg);
+
+	std::pair<double, double> LatLong = GISConversionEngine::TileToLatLon(VisibleTilesID[GetCenterTileIndex()], FVector2D(centerTileDistanceX,-centerTileDistanceY));
+
+	FString Msg = FString::Printf(TEXT("Lat: %.6f, Lon: %.6f"), LatLong.first, LatLong.second);
+
+	// Print to screen for 5 seconds in green
+	GEngine->AddOnScreenDebugMessage(-1, 20.f, FColor::Green, Msg);
+
+	// 9) Return the computed GIS point
+	return FGISPoint(LatLong.first, LatLong.second, 0, CenterTileID.ZoomLevel);
+
+}
+
+
+
+void UGISStaticTileRendererComponent::RefreshConfig(FGISStreamingConfig InStreamingConfig, FInputTileData InConfigData,UStaticMesh* IneBaseMeshAsset,UMaterialInterface* InBaseMaterialAsset)
+{
+	StreamingConfig=InStreamingConfig;
+	TileConfigData=InConfigData;
+	TileBaseMaterialAsset = InBaseMaterialAsset;
+	TileBaseMeshAsset=IneBaseMeshAsset;
+	
+	if (TileConfigData.UseLatitudeLongitude)
 	{
-		FGISPoint Point= FGISPoint(InputConfigData.Latitude,InputConfigData.Longitude,0, InputConfigData.ZoomLevel);
+		FGISPoint Point= FGISPoint(TileConfigData.Latitude,TileConfigData.Longitude,0, TileConfigData.ZoomLevel);
 		std::pair<int, int> TileID = GISConversionEngine::LatLonToTile(Point);	
-		CenterTileID=FGISTileID(InputConfigData.ZoomLevel, TileID.first, TileID.second);
+		CenterTileID=FGISTileID(TileConfigData.ZoomLevel, TileID.first, TileID.second);
 
 	} else
 	{
-		CenterTileID=FGISTileID(InputConfigData.ZoomLevel, InputConfigData.CenterX, InputConfigData.CenterY);
+		CenterTileID=FGISTileID(TileConfigData.ZoomLevel, TileConfigData.CenterX, TileConfigData.CenterY);
 	}
-	GIS_HANDLE_IF (TileMeshInstance.TileBaseMaterialAsset)  
+	GIS_HANDLE_IF (TileBaseMaterialAsset)  
 	{  
-		TileMeshInstance.DynamicMaterial = UMaterialInstanceDynamic::Create(TileMeshInstance.TileBaseMaterialAsset, TileMeshInstance.TileMesh);  
+		DynamicMaterial = UMaterialInstanceDynamic::Create(TileBaseMaterialAsset, TileMesh);  
 	}  
-	GIS_HANDLE_IF (TileMeshInstance.TileBaseMeshAsset)  
+	GIS_HANDLE_IF (TileBaseMeshAsset)  
 	{  
-		TileMeshInstance.TileMesh->SetStaticMesh(TileMeshInstance.TileBaseMeshAsset);  
+		TileMesh->SetStaticMesh(TileBaseMeshAsset);  
 	}
 }
 
 void UGISStaticTileRendererComponent::InitStaticStreaming()
 {
 	StaticStreamer = new StaticStreaming(
-		InStreamingConfig.CameraGridLength,InStreamingConfig.CameraGridLength,
-		InStreamingConfig.AtlasGridLength, InStreamingConfig.AtlasGridLength,
-		InStreamingConfig.TileSize, InStreamingConfig.TileSize
+		StreamingConfig.CameraGridLength,StreamingConfig.CameraGridLength,
+		StreamingConfig.AtlasGridLength, StreamingConfig.AtlasGridLength,
+		StreamingConfig.TileSize, StreamingConfig.TileSize
 		);
 	
-	GIS_HANDLE_IF (TileMeshInstance.DynamicMaterial != nullptr)
+	GIS_HANDLE_IF (DynamicMaterial != nullptr)
 	{
-		TileMeshInstance.DynamicMaterial->SetTextureParameterValue("BaseColor",StaticStreamer->GetStreamingTexture());
-		TileMeshInstance.TileMesh->SetMaterial(0, TileMeshInstance.DynamicMaterial);
+		DynamicMaterial->SetTextureParameterValue("BaseColor",StaticStreamer->GetStreamingTexture());
+		TileMesh->SetMaterial(0, DynamicMaterial);
 	}
 	StaticStreamer->UpdateAtlas();
 	StaticStreamer->UpdateStreaming();
 }
+
+
+void UGISStaticTileRendererComponent::TestCameraMovement()
+{
+	float DeltaTime = GetWorld()->GetDeltaSeconds();
+	float Time = GetWorld()->GetTimeSeconds();
+
+	// --- Base motion: slower sinusoidal oscillation ---
+	constexpr float FrequencyX = 0.08f; // ~1 cycle every ~12.5s
+	constexpr float FrequencyY = 0.06f; // ~1 cycle every ~16.7s
+	float BaseX = FMath::Sin(Time * FrequencyX * 2.f * PI);
+	float BaseY = FMath::Sin(Time * FrequencyY * 2.f * PI + PI / 2.f);
+
+	// --- Gentle Perlin noise for organic variation ---
+	constexpr float NoiseFreq = 0.05f; // slower variation
+	constexpr float NoiseAmplitude = 0.15f; // subtle
+	float NoiseX = FMath::PerlinNoise1D(Time * NoiseFreq) * NoiseAmplitude;
+	float NoiseY = FMath::PerlinNoise1D((Time + 1000.f) * NoiseFreq) * NoiseAmplitude;
+
+	// --- Weighted combination ---
+	float TargetX = FMath::Clamp(BaseX * 0.7f + NoiseX, -1.f, 1.f);
+	float TargetY = FMath::Clamp(BaseY * 0.7f + NoiseY, -1.f, 1.f);
+
+	// --- Smooth over time (low-pass) ---
+	static float SmoothedX = 0.f;
+	static float SmoothedY = 0.f;
+	constexpr float SmoothInterpSpeed = 0.7f; // slower = softer
+	SmoothedX = FMath::FInterpTo(SmoothedX, TargetX, DeltaTime, SmoothInterpSpeed);
+	SmoothedY = FMath::FInterpTo(SmoothedY, TargetY, DeltaTime, SmoothInterpSpeed);
+
+	// --- Apply camera offset ---
+	// REPLACE WITH AN METHOD THAT USE GISSTATICTILERENDERERCOMPONENT
+	StaticStreamer->SetCameraOffset(SmoothedX, SmoothedY);
+}
+
