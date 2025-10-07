@@ -16,7 +16,6 @@ UGISStaticTileRendererComponent::UGISStaticTileRendererComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 
 	TileMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("TileMesh"));
-	TileMesh->SetupAttachment(this);
 	TileMesh->SetWorldScale3D(FVector(5,5,1));
 	FetchIndex=0;
 	TileMesh->SetGenerateOverlapEvents(true);

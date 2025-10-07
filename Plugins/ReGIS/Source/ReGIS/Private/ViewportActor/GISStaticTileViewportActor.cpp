@@ -8,7 +8,7 @@ AGISStaticTileViewportActor::AGISStaticTileViewportActor()
 {
 	RenderComponent = CreateDefaultSubobject<UGISStaticTileRendererComponent>(TEXT("RenderComponent"));
 	RenderComponent->SetupAttachment(RootSceneComponent);
-	
+	RenderComponent->TileMesh->SetupAttachment(RenderComponent);
 }
 
 

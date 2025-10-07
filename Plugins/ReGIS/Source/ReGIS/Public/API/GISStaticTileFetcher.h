@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "GISAPIBase.h"
 #include "Utils/GISDataType.h"
+#include "DBMS/FGISIdentifier.h"
 
 struct ParamsStaticTileFetcher : IGISCustomDatatypes
 {

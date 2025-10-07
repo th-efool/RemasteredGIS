@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include <cmath>
 #include <utility>
+#include "DBMS/FGISIdentifier.h"
 
 #include "Utils/GISDataType.h"
 
