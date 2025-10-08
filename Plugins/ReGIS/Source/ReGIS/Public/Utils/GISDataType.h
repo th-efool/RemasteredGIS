@@ -74,3 +74,79 @@ struct FInputTileData
 	double Longitude = 77.23;
 };
 
+
+
+USTRUCT(BlueprintType)
+struct FGISMeshAssets
+{
+	GENERATED_BODY();
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AssetsRef")
+	UStaticMesh* MeshAsset = nullptr;    
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AssetsRef")    
+	UMaterialInterface* MaterialAsset = nullptr;
+};
+
+USTRUCT(BlueprintType)
+struct FGISMeshInstance
+{
+	GENERATED_BODY();
+	UPROPERTY()
+	UMaterialInstanceDynamic* DynamicMaterial = nullptr;    
+	UPROPERTY()
+	UStaticMeshComponent* TileMesh = nullptr;
+
+	void SetupSceneMesh()
+	{
+		TileMesh->SetWorldScale3D(FVector(10,10,1));
+		TileMesh->SetGenerateOverlapEvents(true);
+		TileMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		TileMesh->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
+		TileMesh->SetCollisionObjectType(ECC_WorldStatic);
+
+		TileMesh->SetNotifyRigidBodyCollision(true);
+		TileMesh->SetCollisionResponseToAllChannels(ECR_Block);
+		TileMesh->bSelectable = true;
+
+		// Let it receive input clicks
+		TileMesh->SetEnableGravity(false);
+		TileMesh->bEditableWhenInherited = true;
+		
+	}
+	void Refresh(FGISMeshAssets Assets)
+	{
+		if (Assets.MaterialAsset != nullptr)  
+		{  
+			DynamicMaterial = UMaterialInstanceDynamic::Create(Assets.MaterialAsset, TileMesh);  
+		}  
+		if (Assets.MeshAsset != nullptr)  
+		{  
+			TileMesh->SetStaticMesh(Assets.MeshAsset);  
+		}
+	};
+	void SetMaterialFromStreamingTexture(UTexture2D* InStreamingTexture)
+	{
+		DynamicMaterial->SetTextureParameterValue("BaseColor",InStreamingTexture);
+		TileMesh->SetMaterial(0, DynamicMaterial);
+	};
+};
+
+
+
+
+USTRUCT(BlueprintType)
+struct FParamsCanvasClickedDelegate
+{
+	GENERATED_BODY()
+	UPROPERTY()
+	double Longitude=0.0;
+	UPROPERTY()
+	double Latitude=0.0;
+	UPROPERTY()
+	FVector LocalHitCoord;
+	
+	FParamsCanvasClickedDelegate()
+		: Longitude(0.0)
+		, Latitude(0.0)
+		, LocalHitCoord(FVector::ZeroVector) // same as FVector(0,0,0)
+	{}
+};

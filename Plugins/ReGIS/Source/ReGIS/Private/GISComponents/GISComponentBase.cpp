@@ -1,0 +1,34 @@
+﻿#include "GISComponents/GISComponentBase.h"
+
+UGISComponentBase::UGISComponentBase()
+{
+	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
+	// off to improve performance if you don't need them.
+	PrimaryComponentTick.bCanEverTick = true;
+
+}
+
+
+// Called when the game starts
+void UGISComponentBase::BeginPlay()
+{
+	Super::BeginPlay();
+
+	// ...
+	
+}
+
+void UGISComponentBase::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
+{
+	Super::PostEditChangeProperty(PropertyChangedEvent);
+	RefreshInternalConfiguration();
+}
+
+
+// Called every frame
+void UGISComponentBase::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	// ...
+}

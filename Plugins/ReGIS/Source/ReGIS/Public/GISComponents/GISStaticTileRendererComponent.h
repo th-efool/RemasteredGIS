@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GISComponentBase.h"
 #include "Components/SceneComponent.h"
 #include "DBMS/FGISIdentifier.h"
 #include "Streaming/StaticStreaming.h"
@@ -12,7 +13,7 @@
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class REGIS_API UGISStaticTileRendererComponent : public USceneComponent
+class REGIS_API UGISStaticTileRendererComponent : public UGISComponentBase
 {
 	GENERATED_BODY()
 // PURE PUBLIC
@@ -30,17 +31,18 @@ public:
 	FGISTileID GetLogicalCenterTileID();
 	FGISTileID GetVisualCenterTileID();;
 	int GetCenterTileIndex() const;
+	
 	void UpdateLocation(FGISTileID newCentertileID);
 	void UpdateLocation(FGISPoint newCenterLongLat);
 
-
-	
+	UTexture2D* GetRenderTexture() const{return StaticStreamer->GetStreamingTexture();}
+	FVector2D GetRawCameraOffset() const{return StaticStreamer->GetCameraOffset();}
 public:	
 	// Sets default values for this component's properties
 	UGISStaticTileRendererComponent();
 	
-	void RefreshConfig(FGISStreamingConfig InStreamingConfig, FInputTileData InputConfigData,UStaticMesh* TileBaseMeshAsset,UMaterialInterface* TileBaseMaterialAsset );
-
+	void RefreshInputConfig(FGISStreamingConfig InStreamingConfig, FInputTileData InputConfigData);
+	virtual void RefreshInternalConfiguration() override;
 		
 	// CONFIGURATION INITIALIZATION
 private:
@@ -48,34 +50,25 @@ private:
 	FGISStreamingConfig StreamingConfig;  
 	UPROPERTY(VisibleAnywhere, Category = "StreamingConfig")
 	FInputTileData TileConfigData;
-public:
-	UPROPERTY()
-	UStaticMeshComponent* TileMesh;
-	UPROPERTY()
-	UMaterialInstanceDynamic* DynamicMaterial;
-	UPROPERTY()
-	UStaticMesh* TileBaseMeshAsset;    
-	UPROPERTY()    
-	UMaterialInterface* TileBaseMaterialAsset;
 	
 private:
 	
 	FGISTileID CenterTileID;
 	unsigned int FetchIndex=0;
 	void HandleTexture(UTexture2D* Texture,unsigned int fetchIndex, int TileIndex) const;
+	/*
+	virtual void OnConstruction(const FTransform& Transform);
+	*/
 
 private:
 	StaticStreaming* StaticStreamer;
+public:
 	void InitStaticStreaming();
 
 private:	
 	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
-public:
-	FGISPoint ConvertLocalPointToGISPoint(FVector2D LocalCoord) const;
-
-
+	
 //DEBUG TEST
 private:
 	void TestCameraMovement();
