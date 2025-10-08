@@ -51,34 +51,92 @@ void UGISStaticTileRendererComponent::UpdateLocation(FGISPoint newCenterLongLat)
 	FetchVisibleTiles();
 }
 
+void UGISStaticTileRendererComponent::StartupComponent()
+{
+	Super::StartupComponent();
+	InitStaticStreaming();
+	
+	FTimerHandle TempHandle;
+	GetWorld()->GetTimerManager().SetTimer(
+		TempHandle,
+		[this](){FetchVisibleTiles();},
+		1.0f, false
+		);
+	
+}
+
 void UGISStaticTileRendererComponent::Pan(float& X, float& Y)
 {
-	if (X>0.8 || Y>0.8 || X<-0.8 || Y<-0.8)
-	{
-		FGISTileID NewCenter = CenterTileID;
-		if (X>0.8)
-		{
-			NewCenter.X++;
-			X=X-1;
-		}
-		if (Y>0.8)
-		{
-			NewCenter.Y++;
-			Y=Y-1;
-		}
-		if (X<-0.8)
-		{
-			NewCenter.X--;
-			X=X+1;
-		}
-		if (Y<-0.8)
-		{
-			NewCenter.Y--;
-			Y=Y+1;
-		}
-		UpdateLocation(NewCenter);
-	}
+	FGISTileID NewCenter = CenterTileID;
+	EnumeratePanShift(X, Y, NewCenter);
+	UpdateLocation(NewCenter);
 	StaticStreamer->SetCameraOffset(X, Y);
+}
+
+void UGISStaticTileRendererComponent::EnumeratePanShift(float& X, float& Y, FGISTileID& NewCenter)
+{
+	float NormalizationFactor = (StreamingConfig.AtlasGridLength - StreamingConfig.CameraGridLength) * 0.5f;
+	float CriticalPoint = 0.8f;
+	int ShiftsX = 0;
+	int ShiftsY = 0;
+
+	/*if (NormalizationFactor == 0.5f)
+	{
+		// THIS IS TO PREVENT INFINITE RECURRSION
+		// if atlas grid & camera grid have only difference of one tile
+		// then with any criticalpoint<1 it will enter infinite loop
+		// example-> 0.8->-1.2->0.8->1.2->0.8		CriticalPoint = 1.0f;
+	}*/
+
+	float OriginalX = X;
+	float OriginalY = Y;
+	FGISTileID OldCenter = NewCenter;
+
+	while (X > CriticalPoint || Y > CriticalPoint || X < -CriticalPoint || Y < -CriticalPoint)
+	{
+		float UnNormalizedOffsetX = X * NormalizationFactor;
+		float UnNormalizedOffsetY = Y * NormalizationFactor;
+
+		if (X > 0.8f)
+		{
+			ShiftsX++;
+			UnNormalizedOffsetX -= 1.0f;
+		}
+		if (Y > 0.8f)
+		{
+			ShiftsY++;
+			UnNormalizedOffsetY -= 1.0f;
+		}
+		if (X < -0.8f)
+		{
+			ShiftsX--;
+			UnNormalizedOffsetX += 1.0f;
+		}
+		if (Y < -0.8f)
+		{
+			ShiftsY--;
+			UnNormalizedOffsetY += 1.0f;
+		}
+
+		X = UnNormalizedOffsetX / NormalizationFactor;
+		Y = UnNormalizedOffsetY / NormalizationFactor;
+	}
+
+	// Apply shifts to center
+	NewCenter.X += ShiftsX;
+	NewCenter.Y += ShiftsY;
+
+	// --- PRINT_SCREEN log ---
+	if (ShiftsX != 0 || ShiftsY != 0)
+	{
+		PRINT_SCREEN(*FString::Printf(
+			TEXT("Pan Shift Occurred!\nOld Center: (%d, %d), New Center: (%d, %d)\nOld Offset: (%.3f, %.3f), New Offset: (%.3f, %.3f)"),
+			OldCenter.X, OldCenter.Y,
+			NewCenter.X, NewCenter.Y,
+			OriginalX, OriginalY,
+			X, Y
+		));
+	}
 }
 
 void UGISStaticTileRendererComponent::Zoom(int Delta)
@@ -127,37 +185,6 @@ void UGISStaticTileRendererComponent::HandleTexture(UTexture2D* Texture, unsigne
 	StaticStreamer->SetVisibleTileIndexed(Texture, TileIndex);
 }
 
-/*void UGISStaticTileRendererComponent::OnConstruction(const FTransform& Transform)
-{
-	InitStaticStreaming();
-}*/
-
-// Called when the game starts
-void UGISStaticTileRendererComponent::BeginPlay()
-{
-	Super::BeginPlay();
-
-	InitStaticStreaming();
-	
-	FTimerHandle TempHandle;
-	GetWorld()->GetTimerManager().SetTimer(
-		TempHandle,
-		[this](){FetchVisibleTiles();},
-		1.0f, false
-		);
-		
-}
-
-
-// Called every frame
-void UGISStaticTileRendererComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	TestCameraMovement();
-
-	// ...
-}
-
 void UGISStaticTileRendererComponent::RefreshInputConfig(FGISStreamingConfig InStreamingConfig, FInputTileData InConfigData)
 {
 	StreamingConfig=InStreamingConfig;
@@ -181,6 +208,9 @@ void UGISStaticTileRendererComponent::RefreshInternalConfiguration()
 	Super::RefreshInternalConfiguration();
 }
 
+
+
+
 void UGISStaticTileRendererComponent::InitStaticStreaming()
 {
 	StaticStreamer = new StaticStreaming(
@@ -194,10 +224,30 @@ void UGISStaticTileRendererComponent::InitStaticStreaming()
 	StaticStreamer->UpdateStreaming();
 }
 
-
-void UGISStaticTileRendererComponent::TestCameraMovement()
+void UGISStaticTileRendererComponent::BeginPlay()
 {
-	float DeltaTime = GetWorld()->GetDeltaSeconds();
+	Super::BeginPlay();
+}
+
+void UGISStaticTileRendererComponent::TickComponent(float DeltaTime, ELevelTick TickType,
+	FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	TestCameraMovement(DeltaTime);
+	
+}
+
+void UGISStaticTileRendererComponent::TestCameraMovement(float DeltaTime)
+{
+	static float x=0.0f;
+	static float y =0.0f;
+	float SpeedFractionSec=0.15;
+
+	x=x+SpeedFractionSec*DeltaTime;
+	y=y+SpeedFractionSec*DeltaTime;
+	Pan(x,y);
+	
+	/*float DeltaTime = GetWorld()->GetDeltaSeconds();
 	float Time = GetWorld()->GetTimeSeconds();
 
 	// --- Base motion: slower sinusoidal oscillation ---
@@ -225,6 +275,6 @@ void UGISStaticTileRendererComponent::TestCameraMovement()
 
 	// --- Apply camera offset ---
 	// REPLACE WITH AN METHOD THAT USE GISSTATICTILERENDERERCOMPONENT
-	StaticStreamer->SetCameraOffset(SmoothedX, SmoothedY);
+	StaticStreamer->SetCameraOffset(SmoothedX, SmoothedY);*/
 }
 

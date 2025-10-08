@@ -51,8 +51,7 @@ void* GISStaticTileFetcher::GetFallbackResource()
 	/*
 	FillColor = FColor::MakeRandomColor();
 	*/
-	UE_LOG(LogTemp, Display, TEXT("Chosen color: %s"), *FillColor.ToString());
-	
+
 	
 	TArray<FColor> Pixels;
 	Pixels.Init(FillColor, 256 * 256);
@@ -114,9 +113,7 @@ FString GISStaticTileFetcher::buildAPIURL(IGISCustomDatatypes& Params)
 {
 	ParamsStaticTileFetcher StaticTileParams = static_cast<ParamsStaticTileFetcher&>(Params);
 	FString AccessToken = TEXT("pk.eyJ1IjoiYWdyaW1zaW5naHgiLCJhIjoiY21ieTk4dTk3MWtpZTJqcXVvcnVicDJhciJ9.k5ZiiC0KNvTaNIzI7uo7lA");
-	UE_LOG(LogTemp, Display, TEXT("TILE ID: Zoom: %d, X: %d, Y: %d"),
-		StaticTileParams.TileID.ZoomLevel, StaticTileParams.TileID.X, StaticTileParams.TileID.Y)
-	
+		
 	return FString::Printf(TEXT("https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/256/%d/%d/%d?access_token=%s"),
 		StaticTileParams.TileID.ZoomLevel, StaticTileParams.TileID.X, StaticTileParams.TileID.Y, *AccessToken);
 	

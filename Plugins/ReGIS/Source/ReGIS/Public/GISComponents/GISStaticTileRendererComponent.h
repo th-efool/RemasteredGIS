@@ -16,9 +16,12 @@ UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class REGIS_API UGISStaticTileRendererComponent : public UGISComponentBase
 {
 	GENERATED_BODY()
+public:
+	virtual void StartupComponent() override;
 // PURE PUBLIC
 public:
 	void Pan(float& X, float& Y);
+	void EnumeratePanShift(float& X, float& Y, FGISTileID& TileID);
 	void Zoom(int Delta);
 
 // SEMI PUBLIC
@@ -62,7 +65,6 @@ private:
 
 private:
 	StaticStreaming* StaticStreamer;
-public:
 	void InitStaticStreaming();
 
 private:	
@@ -71,5 +73,5 @@ private:
 	
 //DEBUG TEST
 private:
-	void TestCameraMovement();
+	void TestCameraMovement(float DeltaTime);
 };

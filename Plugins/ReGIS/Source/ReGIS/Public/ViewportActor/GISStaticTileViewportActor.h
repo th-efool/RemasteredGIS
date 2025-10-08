@@ -24,7 +24,8 @@ public:
 	AGISStaticTileViewportActor();
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
-
+	void StartupComponents();
+	void StartupInputControls();
 
 	// INPUT & USER INTERACTION
 public:

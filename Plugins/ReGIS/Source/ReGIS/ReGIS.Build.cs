@@ -14,7 +14,7 @@ public class ReGIS : ModuleRules
 			}
 			);
 				
-		
+			
 		PrivateIncludePaths.AddRange(
 			new string[] {
 				// ... add other private include paths required here ...
@@ -46,7 +46,9 @@ public class ReGIS : ModuleRules
 				// ... add private dependencies that you statically link with here ...	
 			}
 		);
-
+#if WITH_EDITOR
+		PrivateDependencyModuleNames.AddRange(new string[] { "UnrealEd" });
+#endif
 		
 		
 		DynamicallyLoadedModuleNames.AddRange(

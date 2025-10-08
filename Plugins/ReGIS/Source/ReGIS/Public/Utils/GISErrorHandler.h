@@ -1,8 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
-
+#include "Misc/MessageDialog.h"
+#include "Editor.h"
 #include "CoreMinimal.h"
+
+
 // Define one log category per severity level
 DECLARE_LOG_CATEGORY_EXTERN(LogGIS_Debug, Log, All);
 DECLARE_LOG_CATEGORY_EXTERN(LogGIS_Info, Log, All);
@@ -118,6 +121,17 @@ private:
 		}
 	}
 
+#if WITH_EDITOR
+	static void ShowEditorPopupAndStopPIE(const FString& Msg)
+	{
+		FMessageDialog::Open(EAppMsgType::Ok, FText::FromString(Msg));
+		if (GEditor && GEditor->IsPlayingSessionInEditor())
+		{
+			GEditor->RequestEndPlayMap();
+		}
+	}
+#endif
+
 	// --- Generic fallback (assume valid) ---
 	template<typename T>
 	static bool IsInvalidValue(const T&) { return false; }
@@ -180,6 +194,21 @@ if (GEngine) \
 GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::White, Text); \
 UE_LOG(LogTemp, Display, TEXT("%s"), *FString(Text)); \
 }
+#define GIS_ENSURE_POPUP(expr, message) \
+if (!(expr)) \
+{ \
+FString __PopupMsg = FString::Printf(TEXT("GIS_ENSURE_POPUP failed!\nExpression: %s\n\nMessage: %s\nFile: %s Line: %d"), \
+TEXT(#expr), TEXT(message), ANSI_TO_TCHAR(__FILE__), __LINE__); \
+UE_LOG(LogGIS_Error, Error, TEXT("%s"), *__PopupMsg); \
+PRINT_SCREEN(__PopupMsg); \
+/* Show blocking dialog and stop PIE safely (runtime check) */ \
+if (GIsEditor) \
+{ \
+FLogger::ShowEditorPopupAndStopPIE(__PopupMsg); \
+} \
+}
+
+
 
 
 #else
@@ -201,5 +230,6 @@ UE_LOG(LogTemp, Display, TEXT("%s"), *FString(Text)); \
 #define GIS_FATAL_MSG(x, msg)  (x)
 
 #define GIS_CHECK_PTR(ptr) (x)
-
+#define PRINT_SCREEN(Text) (;)
+#define GIS_ENSURE_POPUP(expr, message)(if(expr))
 #endif

@@ -16,6 +16,7 @@ public:
 	UGISComponentBase();
 
 protected:
+	virtual void StartupComponent(){};
 	// Called when the game starts
 	virtual void BeginPlay() override;
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;

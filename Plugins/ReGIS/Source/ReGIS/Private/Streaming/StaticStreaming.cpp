@@ -71,10 +71,10 @@ void StaticStreaming::ReInitVisibleTiles()
 	}
 }
 
+// Called after successful fetch!
 void StaticStreaming::SetVisibleTileIndexed(UTexture2D* InTile, int Index)
 {
 	VisibleTiles[Index] = InTile;
-	UE_LOG(LogTemp, Display, TEXT("Succesful FetchbackOf: %d"), Index)
 	UpdateAtlas();
 	UpdateStreaming();
 }

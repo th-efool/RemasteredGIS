@@ -6,6 +6,12 @@
 #include "Utils/GISConversionEngine.h"
 #include "Utils/GISErrorHandler.h"
 
+#if WITH_EDITOR
+#include "Editor.h"
+#include "Editor/UnrealEd/Public/UnrealEd.h"
+#include "Editor/UnrealEd/Public/Editor.h"
+#endif
+
 
 AGISStaticTileViewportActor::AGISStaticTileViewportActor()
 {
@@ -17,10 +23,34 @@ AGISStaticTileViewportActor::AGISStaticTileViewportActor()
 }
 
 
+void AGISStaticTileViewportActor::Tick(float DeltaTime)  
+{  
+	Super::Tick(DeltaTime);  
+}
 
 void AGISStaticTileViewportActor::BeginPlay()
 {
 	Super::BeginPlay();
+	StartupComponents();
+	StartupInputControls();
+	
+}
+
+void AGISStaticTileViewportActor::StartupComponents()
+{
+	RenderComponent->StartupComponent();
+
+	if ((TileMeshAssets.MaterialAsset==nullptr) || (TileMeshAssets.MaterialAsset==nullptr)){return;}
+	TileMeshInstance.DynamicMaterial = UMaterialInstanceDynamic::Create(TileMeshAssets.MaterialAsset, TileMeshInstance.TileMesh);
+	TileMeshInstance.TileMesh->SetStaticMesh(TileMeshAssets.MeshAsset);
+	TileMeshInstance.TileMesh->SetMaterial(0, TileMeshInstance.DynamicMaterial);
+	UTexture2D* StreamingTexture = RenderComponent ? RenderComponent->GetRenderTexture() : nullptr;
+	TileMeshInstance.DynamicMaterial->SetTextureParameterValue("BaseColor", StreamingTexture);
+	
+}
+
+void AGISStaticTileViewportActor::StartupInputControls()
+{
 	APlayerController* PC = GetWorld()->GetFirstPlayerController();
 	if (PC)
 	{
@@ -31,76 +61,11 @@ void AGISStaticTileViewportActor::BeginPlay()
 		PC->bEnableClickEvents = true;
 		PC->bEnableMouseOverEvents = true;
 	}
+
 	if (TileMeshInstance.TileMesh)
 	{
 		TileMeshInstance.TileMesh->OnClicked.AddDynamic(this, &AGISStaticTileViewportActor::HandleOnClicked);
 	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("TileMeshInstance.TileMesh is null in BeginPlay!"));
-	}
-
-
-	FTimerHandle TempHandle;
-	GetWorld()->GetTimerManager().SetTimer(
-		TempHandle,
-		[this](){
-		
-	
-			
-
-			// Safely create dynamic material using your macro
-			GIS_HANDLE_IF(TileMeshAssets.MaterialAsset && TileMeshInstance.TileMesh)
-			{
-				TileMeshInstance.DynamicMaterial = UMaterialInstanceDynamic::Create(TileMeshAssets.MaterialAsset, TileMeshInstance.TileMesh);
-				if (!TileMeshInstance.DynamicMaterial)
-				{
-					UE_LOG(LogTemp, Error, TEXT("Failed to create DynamicMaterial!"));
-				}
-			}
-
-			// Safely set mesh and material
-			GIS_HANDLE_IF(TileMeshAssets.MeshAsset && TileMeshInstance.TileMesh)
-			{
-				TileMeshInstance.TileMesh->SetStaticMesh(TileMeshAssets.MeshAsset);
-
-				if (TileMeshInstance.DynamicMaterial)
-				{
-					TileMeshInstance.TileMesh->SetMaterial(0, TileMeshInstance.DynamicMaterial);
-				}
-				else
-				{
-					UE_LOG(LogTemp, Warning, TEXT("DynamicMaterial is null, cannot apply to TileMesh!"));
-				}
-			}
-
-
-			// Set streaming texture safely
-			UTexture2D* StreamingTexture = RenderComponent ? RenderComponent->GetRenderTexture() : nullptr;
-			if (TileMeshInstance.DynamicMaterial && StreamingTexture)
-			{
-				TileMeshInstance.DynamicMaterial->SetTextureParameterValue("BaseColor", StreamingTexture);
-			}
-			else
-			{
-				UE_LOG(LogTemp, Warning, TEXT("DynamicMaterial or StreamingTexture is null in BeginPlay!"));
-			}
-
-
-
-	},
-		1.0f, false
-		);
-
-	
-	
-	
-}
-
-
-void AGISStaticTileViewportActor::Tick(float DeltaTime)  
-{  
-	Super::Tick(DeltaTime);  
 }
 
 void AGISStaticTileViewportActor::OnConstruction(const FTransform& Transform)
@@ -117,11 +82,25 @@ void AGISStaticTileViewportActor::RefreshConfig()
 	RenderComponent->RefreshInputConfig(InStreamingConfig,InputConfigData);
 }
 
+#if WITH_EDITOR
+
 void AGISStaticTileViewportActor::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
 	Super::PostEditChangeProperty(PropertyChangedEvent);
 	RefreshConfig();
+	// To Ensure it doesn't do infinite recurrsion on pan edge case 
+	if ((InStreamingConfig.AtlasGridLength - InStreamingConfig.CameraGridLength) <= 1)
+	{
+		InStreamingConfig.AtlasGridLength = InStreamingConfig.CameraGridLength + 2;
+		UE_LOG(LogTemp, Warning, TEXT("AtlasGridLength auto-corrected to %d to maintain (Atlas - Camera) > 1"),
+			InStreamingConfig.AtlasGridLength);
+
+		/*// refresh details panel, so auto-update value is visible
+		if (GEditor)
+		{GEditor->RedrawAllViewports();}*/
+	}
 }
+#endif
 
 void AGISStaticTileViewportActor::HandleOnClicked(UPrimitiveComponent* TouchedComponent, FKey ButtonPressed)
 {
