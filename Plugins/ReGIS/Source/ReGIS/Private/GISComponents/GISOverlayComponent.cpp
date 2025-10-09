@@ -6,7 +6,6 @@
 #include "Blueprint/WidgetLayoutLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/CanvasPanelSlot.h"
-#include "GameFramework/PlayerController.h"
 #include "Utils/GISErrorHandler.h"
 
 void UGISOverlayComponent::StartupComponent()
@@ -28,50 +27,50 @@ void UGISOverlayComponent::AddMarkerAtWorldLocation(FVector WorldLocation)
 {
 	GIS_ENSURE_POPUP(MarkerWidgetClass,"GISOverlayComponent: No valid marker widget class attached");
 	if (!MarkerWidgetClass){return;}
-	
-	APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-	if (!PC) return;
 
-	UUserWidget* Marker = CreateWidget<UUserWidget>(PC, MarkerWidgetClass);
-	if (Marker)
-	{
-		Marker->AddToViewport();
-		FMarkerEntry Entry;
-		Entry.Widget = Marker;
-		Entry.WorldLocation = WorldLocation;
-		Markers.Add(Entry);
-	}
+	UWidgetComponent* WidgetComp = NewObject<UWidgetComponent>(this);
+	if (!WidgetComp) return;
+
+	WidgetComp->RegisterComponent();
+	WidgetComp->AttachToComponent(this, FAttachmentTransformRules::KeepWorldTransform);
+	WidgetComp->SetWidgetClass(MarkerWidgetClass);
+	WidgetComp->SetWorldLocation(WorldLocation);
+	WidgetComp->SetDrawSize(FVector2D(100.f, 100.f));
+	WidgetComp->SetWidgetSpace(EWidgetSpace::World);
+	WidgetComp->SetPivot(FVector2D(0.5f, 0.5f));
+	WidgetComp->SetTwoSided(true);
+	WidgetComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	
+	FMarkerEntry Entry;
+	Entry.WidgetComp = WidgetComp;
+	Entry.WorldLocation = WorldLocation;
+	Markers.Add(Entry);
+	
 }
 
 void UGISOverlayComponent::RenderMarkers()
 {
-	APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-	if (!PC) return;
+	APlayerCameraManager* Cam = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0);
+	if (!Cam) return;
+
+	FVector CamLoc = Cam->GetCameraLocation();
 
 	for (auto& Entry : Markers)
 	{
-		FVector2D ScreenPos;
-		bool bOnScreen =
-			UWidgetLayoutLibrary::ProjectWorldLocationToWidgetPosition(
-				PC, Entry.WorldLocation, ScreenPos, false);
+		if (!Entry.WidgetComp) continue;
 
-		if (bOnScreen)
-		{
-			// Move the widget directly
-			Entry.Widget->SetRenderTranslation(ScreenPos);
-			Entry.Widget->SetVisibility(ESlateVisibility::Visible);
-						
-			float Distance = FVector::Dist(PC->PlayerCameraManager->GetCameraLocation(), Entry.WorldLocation);
-			
-			float Scale = FMath::Clamp(500.0f / Distance, 0.05f, 1.0f);
-			Entry.Widget->SetRenderScale(FVector2D(Scale, Scale));
-		}
-		else
-		{
-			Entry.Widget->SetVisibility(ESlateVisibility::Hidden);
-		}
+		FVector ToCamera = CamLoc - Entry.WorldLocation;
+		float Distance = ToCamera.Size();
+
+		float Scale = FMath::Clamp(300.f / Distance, 0.2f, 1.0f);
+		Entry.WidgetComp->SetWorldScale3D(FVector(Scale));
+
+		// Always face the camera
+		Entry.WidgetComp->SetWorldRotation((CamLoc - Entry.WorldLocation).Rotation());
 	}
 
 }
+
+
 
 

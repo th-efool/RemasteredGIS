@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Components/WidgetComponent.h"
 #include "GISComponents/GISComponentBase.h"
 #include "GISOverlayComponent.generated.h"
 
@@ -13,7 +14,7 @@ struct FMarkerEntry
 	GENERATED_BODY()
 
 	UPROPERTY()
-	UUserWidget* Widget=nullptr;
+	UWidgetComponent* WidgetComp=nullptr;
 
 	UPROPERTY()
 	FVector WorldLocation=FVector(0.f,0.f,0.f);
