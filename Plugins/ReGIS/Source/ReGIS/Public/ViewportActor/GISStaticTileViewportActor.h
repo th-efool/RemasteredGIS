@@ -5,9 +5,8 @@
 #include "CoreMinimal.h"
 #include "GISTileViewportActor.h"
 #include  "Utils/GISDataType.h"
-
 #include <utility>
-
+#include "GISComponents/GISOverlayComponent.h"
 #include "GISComponents/GISStaticTileRendererComponent.h"
 #include "GISStaticTileViewportActor.generated.h"
 
@@ -38,14 +37,16 @@ public:
 	
 	// UPDATE CONIFGURATION
 private:
-	void RefreshConfig() override;
-	void OnConstruction(const FTransform& Transform) override;    
-	void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent);
+	virtual void RefreshConfig() override;
+	virtual void OnConstruction(const FTransform& Transform) override;    
+	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 
 	// RENDERER COMPONENT
-private:
+public:
 	UPROPERTY()
 	UGISStaticTileRendererComponent* RenderComponent;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Canvas")
+	UGISOverlayComponent* OverlayComponent;
 	FGISPoint ConvertLocalPointToGISPoint(FVector2D LocalCoord) const;
 
 public:

@@ -6,17 +6,15 @@
 #include "Utils/GISConversionEngine.h"
 #include "Utils/GISErrorHandler.h"
 
-#if WITH_EDITOR
-#include "Editor.h"
-#include "Editor/UnrealEd/Public/UnrealEd.h"
-#include "Editor/UnrealEd/Public/Editor.h"
-#endif
+
 
 
 AGISStaticTileViewportActor::AGISStaticTileViewportActor()
 {
 	RenderComponent = CreateDefaultSubobject<UGISStaticTileRendererComponent>(TEXT("RenderComponent"));
 	RenderComponent->SetupAttachment(RootSceneComponent);
+	OverlayComponent= CreateDefaultSubobject<UGISOverlayComponent>(TEXT("OverlayComponent"));
+	OverlayComponent->SetupAttachment(RootSceneComponent);
 	TileMeshInstance.TileMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("TileMesh"));
 	TileMeshInstance.TileMesh->SetupAttachment(RootSceneComponent);
 	TileMeshInstance.SetupSceneMesh();
@@ -38,14 +36,16 @@ void AGISStaticTileViewportActor::BeginPlay()
 
 void AGISStaticTileViewportActor::StartupComponents()
 {
+	OverlayComponent->StartupComponent();
 	RenderComponent->StartupComponent();
-
 	if ((TileMeshAssets.MaterialAsset==nullptr) || (TileMeshAssets.MaterialAsset==nullptr)){return;}
 	TileMeshInstance.DynamicMaterial = UMaterialInstanceDynamic::Create(TileMeshAssets.MaterialAsset, TileMeshInstance.TileMesh);
 	TileMeshInstance.TileMesh->SetStaticMesh(TileMeshAssets.MeshAsset);
 	TileMeshInstance.TileMesh->SetMaterial(0, TileMeshInstance.DynamicMaterial);
 	UTexture2D* StreamingTexture = RenderComponent ? RenderComponent->GetRenderTexture() : nullptr;
 	TileMeshInstance.DynamicMaterial->SetTextureParameterValue("BaseColor", StreamingTexture);
+
+	
 	
 }
 
@@ -95,9 +95,7 @@ void AGISStaticTileViewportActor::PostEditChangeProperty(FPropertyChangedEvent& 
 		UE_LOG(LogTemp, Warning, TEXT("AtlasGridLength auto-corrected to %d to maintain (Atlas - Camera) > 1"),
 			InStreamingConfig.AtlasGridLength);
 
-		/*// refresh details panel, so auto-update value is visible
-		if (GEditor)
-		{GEditor->RedrawAllViewports();}*/
+	
 	}
 }
 #endif
@@ -109,7 +107,8 @@ void AGISStaticTileViewportActor::HandleOnClicked(UPrimitiveComponent* TouchedCo
 	if (!PC) return;
 
 	FHitResult Hit;
-	if (PC->GetHitResultUnderCursorByChannel(UEngineTypes::ConvertToTraceType(ECC_Visibility), true, Hit))
+	PC->GetHitResultUnderCursorByChannel(UEngineTypes::ConvertToTraceType(ECC_Visibility), true, Hit);
+	if (Hit.bBlockingHit)
 	{
 		if (Hit.GetActor() != this){ return;}
 		FVector LocalPoint = TileMeshInstance.TileMesh->GetComponentTransform().InverseTransformPosition(Hit.ImpactPoint);
@@ -119,6 +118,8 @@ void AGISStaticTileViewportActor::HandleOnClicked(UPrimitiveComponent* TouchedCo
 		CanvasClickedDelegateParams.LocalHitCoord = LocalPoint;
 		CanvasClickedDelegateParams.Latitude = GISPoint.Latitude;
 		CanvasClickedDelegateParams.Longitude= GISPoint.Longitude;
+
+		if (OverlayComponent){OverlayComponent->AddMarkerAtWorldLocation(Hit.Location);}
 		OnCanvasClicked.Broadcast(CanvasClickedDelegateParams);
 	}
 }

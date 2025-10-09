@@ -72,7 +72,7 @@ void UGISStaticTileRendererComponent::Pan(float& X, float& Y)
 	UpdateLocation(NewCenter);
 	StaticStreamer->SetCameraOffset(X, Y);
 }
-
+ 
 void UGISStaticTileRendererComponent::EnumeratePanShift(float& X, float& Y, FGISTileID& NewCenter)
 {
 	float NormalizationFactor = (StreamingConfig.AtlasGridLength - StreamingConfig.CameraGridLength) * 0.5f;

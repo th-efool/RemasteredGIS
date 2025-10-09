@@ -120,18 +120,15 @@ private:
 			;
 		}
 	}
-
+public:
 #if WITH_EDITOR
 	static void ShowEditorPopupAndStopPIE(const FString& Msg)
 	{
 		FMessageDialog::Open(EAppMsgType::Ok, FText::FromString(Msg));
-		if (GEditor && GEditor->IsPlayingSessionInEditor())
-		{
-			GEditor->RequestEndPlayMap();
-		}
 	}
 #endif
 
+private:
 	// --- Generic fallback (assume valid) ---
 	template<typename T>
 	static bool IsInvalidValue(const T&) { return false; }

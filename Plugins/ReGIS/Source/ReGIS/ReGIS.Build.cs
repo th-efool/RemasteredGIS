@@ -46,9 +46,11 @@ public class ReGIS : ModuleRules
 				// ... add private dependencies that you statically link with here ...	
 			}
 		);
-#if WITH_EDITOR
-		PrivateDependencyModuleNames.AddRange(new string[] { "UnrealEd" });
-#endif
+
+		if (Target.bBuildEditor)
+		{
+			PrivateDependencyModuleNames.AddRange(new string[] { "UnrealEd" });
+		}
 		
 		
 		DynamicallyLoadedModuleNames.AddRange(
