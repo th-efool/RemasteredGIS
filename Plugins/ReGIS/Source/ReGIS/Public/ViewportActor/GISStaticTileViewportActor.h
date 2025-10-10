@@ -44,8 +44,10 @@ private:
 public:
 	UPROPERTY()
 	UGISStaticTileRendererComponent* RenderComponent;
+public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Canvas")
 	UGISOverlayComponent* OverlayComponent;
+	
 	FGISPoint ConvertLocalPointToGISPoint(FVector2D LocalCoord) const;
 	UFUNCTION(BlueprintCallable)
 	FVector2D ConvertLatLongToLocalPoint(double Latitude, double Longitude, int Zoom) const;

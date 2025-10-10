@@ -16,7 +16,13 @@
   <component name="ChangeListManager">
     <list default="true" id="967cc7e2-8a47-44aa-ae05-a3fa208b46bf" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.RemasteredGIS/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.RemasteredGIS/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Config/DefaultEditor.ini" beforeDir="false" afterPath="$PROJECT_DIR$/Config/DefaultEditor.ini" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/StaticTile.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/StaticTile.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/__ExternalActors__/TestMap/1/2W/LNT4MY40QFOT50GIWTI8MJ.uasset" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/API/GISStaticTileFetcher.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/API/GISStaticTileFetcher.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/GISComponents/GISOverlayComponent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/GISComponents/GISOverlayComponent.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/GISComponents/GISOverlayComponent.h" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/GISComponents/GISOverlayComponent.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/ViewportActor/GISStaticTileViewportActor.h" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/ViewportActor/GISStaticTileViewportActor.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -224,7 +230,7 @@
       <workItem from="1759924374907" duration="14003000" />
       <workItem from="1759946539592" duration="9767000" />
       <workItem from="1759988181480" duration="12270000" />
-      <workItem from="1760023027492" duration="16933000" />
+      <workItem from="1760023027492" duration="28070000" />
     </task>
     <servers />
   </component>

@@ -4,13 +4,16 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/WidgetComponent.h"
+
+#include "Components/SplineComponent.h"
+#include "Components/SplineMeshComponent.h"
 #include "GISComponents/GISComponentBase.h"
 #include "GISOverlayComponent.generated.h"
 
 class AGISStaticTileViewportActor;
 
 
-USTRUCT()
+USTRUCT(BlueprintType)
 struct FMarkerEntry
 {
 	GENERATED_BODY()
@@ -25,6 +28,23 @@ struct FMarkerEntry
 	FVector WorldLocation=FVector(0.f,0.f,0.f);
 };
 
+USTRUCT()
+struct FPathEntry
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	TArray<FMarkerEntry> WayPoints;
+
+	UPROPERTY()
+	TArray<FVector> WorldPoints;
+
+	UPROPERTY()
+	USplineComponent* SplineComp = nullptr;
+
+	UPROPERTY()
+	TArray<USplineMeshComponent*> SplineMeshes;
+};
 
 UCLASS()
 class REGIS_API UGISOverlayComponent : public UGISComponentBase
@@ -46,11 +66,25 @@ public:
 	// Adds a new marker widget at world location
 	UFUNCTION(BlueprintCallable)
 	void AddMarkerAtWorldLocation(double Latitude, double Longitude);
-	
+
+	UFUNCTION()
+	void AddPathBetweenPoints(const TArray<FMarkerEntry>& Points);
+
 private:
 	UPROPERTY()
 	TArray<FMarkerEntry> Markers;
 	void RenderMarkers();
+	UPROPERTY()
+	TArray<FPathEntry> Paths;
+	void RenderPaths();
 
+public:
+	UPROPERTY(EditAnywhere, Category="Overlay|Paths")
+	UStaticMesh* LineMesh;
+
+	UPROPERTY(EditAnywhere, Category="Overlay|Paths")
+	UMaterialInterface* LineMaterial;
+
+virtual void BeginPlay() override;
 	
 };
