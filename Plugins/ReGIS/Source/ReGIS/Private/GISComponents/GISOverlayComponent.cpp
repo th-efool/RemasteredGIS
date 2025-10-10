@@ -2,11 +2,10 @@
 
 
 #include "GISComponents/GISOverlayComponent.h"
-
-#include "Blueprint/WidgetLayoutLibrary.h"
 #include "Kismet/GameplayStatics.h"
-#include "Components/CanvasPanelSlot.h"
+#include "Utils/GISConversionEngine.h"
 #include "Utils/GISErrorHandler.h"
+#include "ViewportActor/GISStaticTileViewportActor.h"
 
 void UGISOverlayComponent::StartupComponent()
 {
@@ -23,7 +22,7 @@ void UGISOverlayComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 	}
 }
 
-void UGISOverlayComponent::AddMarkerAtWorldLocation(FVector WorldLocation)
+void UGISOverlayComponent::AddMarkerAtWorldLocation(double Latitude, double Longitude)
 {
 	GIS_ENSURE_POPUP(MarkerWidgetClass,"GISOverlayComponent: No valid marker widget class attached");
 	if (!MarkerWidgetClass){return;}
@@ -34,7 +33,6 @@ void UGISOverlayComponent::AddMarkerAtWorldLocation(FVector WorldLocation)
 	WidgetComp->RegisterComponent();
 	WidgetComp->AttachToComponent(this, FAttachmentTransformRules::KeepWorldTransform);
 	WidgetComp->SetWidgetClass(MarkerWidgetClass);
-	WidgetComp->SetWorldLocation(WorldLocation);
 	WidgetComp->SetDrawSize(FVector2D(100.f, 100.f));
 	WidgetComp->SetWidgetSpace(EWidgetSpace::World);
 	WidgetComp->SetPivot(FVector2D(0.5f, 0.5f));
@@ -43,22 +41,28 @@ void UGISOverlayComponent::AddMarkerAtWorldLocation(FVector WorldLocation)
 	
 	FMarkerEntry Entry;
 	Entry.WidgetComp = WidgetComp;
-	Entry.WorldLocation = WorldLocation;
+	Entry.Latitude = Latitude;
+	Entry.Longitude = Longitude;
 	Markers.Add(Entry);
 	
 }
 
 void UGISOverlayComponent::RenderMarkers()
 {
+	GIS_ENSURE_POPUP(ViewportActor,"GISOverlayComponent: ViewportComponent not initialized");
 	APlayerCameraManager* Cam = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0);
 	if (!Cam) return;
+	int CurrentZoomLevel = ViewportActor->RenderComponent->GetVisualCenterTileID().ZoomLevel;
 
 	FVector CamLoc = Cam->GetCameraLocation();
 
 	for (auto& Entry : Markers)
 	{
 		if (!Entry.WidgetComp) continue;
-
+		FVector2D LocalPoint = ViewportActor->ConvertLatLongToLocalPoint(Entry.Latitude, Entry.Longitude, CurrentZoomLevel );
+		FVector WorldLocation = ViewportActor->ConvertLocalPointToWorldPoint(FVector(LocalPoint, 0.0f));
+		Entry.WidgetComp->SetWorldLocation(WorldLocation);
+		Entry.WorldLocation = WorldLocation;
 		FVector ToCamera = CamLoc - Entry.WorldLocation;
 		float Distance = ToCamera.Size();
 

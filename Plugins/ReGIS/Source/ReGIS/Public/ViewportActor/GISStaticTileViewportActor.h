@@ -1,4 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -48,6 +47,10 @@ public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Canvas")
 	UGISOverlayComponent* OverlayComponent;
 	FGISPoint ConvertLocalPointToGISPoint(FVector2D LocalCoord) const;
+	UFUNCTION(BlueprintCallable)
+	FVector2D ConvertLatLongToLocalPoint(double Latitude, double Longitude, int Zoom) const;
+	FVector ConvertWorldPointToLocalPoint(FVector WorldPoint) const;
+	FVector ConvertLocalPointToWorldPoint(FVector LocalCoord) const;
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "StreamingConfig")

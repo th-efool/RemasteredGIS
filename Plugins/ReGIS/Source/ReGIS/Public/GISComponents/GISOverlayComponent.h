@@ -1,4 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -8,6 +7,9 @@
 #include "GISComponents/GISComponentBase.h"
 #include "GISOverlayComponent.generated.h"
 
+class AGISStaticTileViewportActor;
+
+
 USTRUCT()
 struct FMarkerEntry
 {
@@ -15,7 +17,10 @@ struct FMarkerEntry
 
 	UPROPERTY()
 	UWidgetComponent* WidgetComp=nullptr;
-
+	UPROPERTY()
+	double Latitude=0;
+	UPROPERTY()
+	double Longitude=0;
 	UPROPERTY()
 	FVector WorldLocation=FVector(0.f,0.f,0.f);
 };
@@ -30,6 +35,9 @@ public:
 	virtual void StartupComponent() override;
 	// Called every frame to update screen-space positions
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+	UPROPERTY()
+	AGISStaticTileViewportActor* ViewportActor;
 	
 	// The widget class to use for markers
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -37,10 +45,12 @@ public:
 
 	// Adds a new marker widget at world location
 	UFUNCTION(BlueprintCallable)
-	void AddMarkerAtWorldLocation(FVector WorldLocation);
+	void AddMarkerAtWorldLocation(double Latitude, double Longitude);
 	
 private:
 	UPROPERTY()
 	TArray<FMarkerEntry> Markers;
 	void RenderMarkers();
+
+	
 };

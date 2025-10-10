@@ -37,6 +37,7 @@ void AGISStaticTileViewportActor::BeginPlay()
 void AGISStaticTileViewportActor::StartupComponents()
 {
 	OverlayComponent->StartupComponent();
+	OverlayComponent->ViewportActor = this;
 	RenderComponent->StartupComponent();
 	if ((TileMeshAssets.MaterialAsset==nullptr) || (TileMeshAssets.MaterialAsset==nullptr)){return;}
 	TileMeshInstance.DynamicMaterial = UMaterialInstanceDynamic::Create(TileMeshAssets.MaterialAsset, TileMeshInstance.TileMesh);
@@ -44,9 +45,6 @@ void AGISStaticTileViewportActor::StartupComponents()
 	TileMeshInstance.TileMesh->SetMaterial(0, TileMeshInstance.DynamicMaterial);
 	UTexture2D* StreamingTexture = RenderComponent ? RenderComponent->GetRenderTexture() : nullptr;
 	TileMeshInstance.DynamicMaterial->SetTextureParameterValue("BaseColor", StreamingTexture);
-
-	
-	
 }
 
 void AGISStaticTileViewportActor::StartupInputControls()
@@ -111,7 +109,7 @@ void AGISStaticTileViewportActor::HandleOnClicked(UPrimitiveComponent* TouchedCo
 	if (Hit.bBlockingHit)
 	{
 		if (Hit.GetActor() != this){ return;}
-		FVector LocalPoint = TileMeshInstance.TileMesh->GetComponentTransform().InverseTransformPosition(Hit.ImpactPoint);
+		FVector LocalPoint = ConvertWorldPointToLocalPoint(Hit.ImpactPoint);
 		FGISPoint GISPoint = ConvertLocalPointToGISPoint(FVector2D(LocalPoint.X, LocalPoint.Y));
 		// Fire delegate
 		FParamsCanvasClickedDelegate CanvasClickedDelegateParams;
@@ -119,7 +117,7 @@ void AGISStaticTileViewportActor::HandleOnClicked(UPrimitiveComponent* TouchedCo
 		CanvasClickedDelegateParams.Latitude = GISPoint.Latitude;
 		CanvasClickedDelegateParams.Longitude= GISPoint.Longitude;
 
-		if (OverlayComponent){OverlayComponent->AddMarkerAtWorldLocation(Hit.Location);}
+		if (OverlayComponent){OverlayComponent->AddMarkerAtWorldLocation(GISPoint.Latitude, GISPoint.Longitude);}
 		OnCanvasClicked.Broadcast(CanvasClickedDelegateParams);
 	}
 }
@@ -152,7 +150,7 @@ FGISPoint AGISStaticTileViewportActor::ConvertLocalPointToGISPoint(FVector2D Loc
 	double centerTileDistanceX = unitLenFromCenterX-(CenterTileTLX+localizedCamOffsetX);
 	double centerTileDistanceY = unitLenFromCenterY-(CenterTileTLY+localizedCamOffsetY);
 	
-	// 7) Build minimal debug message
+	/*// 7) Build minimal debug message
 	FString TraceMsg;
 	TraceMsg += FString::Printf(TEXT("CANVAS LOCAL HIT TRACE\n"));
 	TraceMsg += FString::Printf(TEXT("1) DistanceFromCenter (inTileUnit): X=%.4f, Y=%.4f\n"), unitLenFromCenterX, unitLenFromCenterY);
@@ -164,7 +162,7 @@ FGISPoint AGISStaticTileViewportActor::ConvertLocalPointToGISPoint(FVector2D Loc
 	TraceMsg += FString::Printf(TEXT("4) FINAL CenterTileDistance:       X=%.4f, Y=%.4f\n"), centerTileDistanceX, centerTileDistanceY);
 
 	// 8) Single on-screen print
-	GEngine->AddOnScreenDebugMessage(-1, 30.f, FColor::Green, TraceMsg);
+	GEngine->AddOnScreenDebugMessage(-1, 30.f, FColor::Green, TraceMsg);*/
 
 	FGISTileID centerTileID = RenderComponent->GetVisualCenterTileID();
 	std::pair<double, double> LatLong = GISConversionEngine::TileToLatLon(centerTileID, FVector2D(centerTileDistanceX,-centerTileDistanceY));
@@ -176,6 +174,60 @@ FGISPoint AGISStaticTileViewportActor::ConvertLocalPointToGISPoint(FVector2D Loc
 
 	// 9) Return the computed GIS point
 	return FGISPoint(LatLong.first, LatLong.second, 0, centerTileID.ZoomLevel);
+}
+
+FVector2D AGISStaticTileViewportActor::ConvertLatLongToLocalPoint(double Latitude, double Longitude, int Zoom) const
+{
+	// 1) Get current visual center tile ID
+	FGISTileID centerTileID = RenderComponent->GetVisualCenterTileID();
+
+	// 2) Convert Lat/Lon → tile-space delta (like how much offset from center tile)
+	FVector2D TileOffset = GISConversionEngine::CalculateOffsetInUnitTileLength(centerTileID, Latitude, Longitude);
+
+	// TileOffset = (centerTileDistanceX, -centerTileDistanceY) in your convention
+	double centerTileDistanceX = TileOffset.X;
+	double centerTileDistanceY = -TileOffset.Y;
+
+	// 3) Camera offsets and center tile TL corrections
+	double CenterTileTLX = (InStreamingConfig.AtlasGridLength % 2 == 1) ? -0.5f : -1.f; 
+	double CenterTileTLY = (InStreamingConfig.AtlasGridLength % 2 == 1) ? 0.5f : 1.f;
+
+	FVector2D cameraOffsetRaw = RenderComponent->GetRawCameraOffset();
+
+	float MaxPossibleTileOffsetX = (InStreamingConfig.AtlasGridLength - InStreamingConfig.CameraGridLength) / 2.f;
+	float MaxPossibleTileOffsetY = (InStreamingConfig.AtlasGridLength - InStreamingConfig.CameraGridLength) / 2.f;
+
+	double localizedCamOffsetX = -(cameraOffsetRaw.X) * MaxPossibleTileOffsetX;
+	double localizedCamOffsetY = (cameraOffsetRaw.Y) * MaxPossibleTileOffsetY;
+
+	// 4) Undo offsets
+	double unitLenFromCenterX = centerTileDistanceX + (CenterTileTLX + localizedCamOffsetX);
+	double unitLenFromCenterY = centerTileDistanceY + (CenterTileTLY + localizedCamOffsetY);
+
+	// 5) Undo unit-to-local scaling
+	double scaledX = unitLenFromCenterX / (0.5 * InStreamingConfig.CameraGridLength);
+	double scaledY = unitLenFromCenterY / (0.5 * InStreamingConfig.CameraGridLength);
+
+	// 6) Undo the /50.0 scale and Y inversion
+	double inputX = scaledX * 50.0;
+	double inputY = -(scaledY * 50.0); // re-invert Y
+
+	// 7) Return as local point
+	return FVector2D(inputX, inputY);
+}
+
+
+
+FVector AGISStaticTileViewportActor::ConvertWorldPointToLocalPoint(FVector WorldPoint) const
+{
+	FVector LocalPoint = TileMeshInstance.TileMesh->GetComponentTransform().InverseTransformPosition(WorldPoint);
+	return LocalPoint;
+}
+
+FVector AGISStaticTileViewportActor::ConvertLocalPointToWorldPoint(FVector LocalCoord) const
+{
+	FVector WorldPoint = TileMeshInstance.TileMesh->GetComponentTransform().TransformPosition(LocalCoord);
+	return WorldPoint;
 }
 
 

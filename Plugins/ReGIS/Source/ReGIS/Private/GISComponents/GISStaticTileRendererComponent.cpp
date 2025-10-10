@@ -237,17 +237,18 @@ void UGISStaticTileRendererComponent::TickComponent(float DeltaTime, ELevelTick 
 	
 }
 
-void UGISStaticTileRendererComponent::TestCameraMovement(float DeltaTime)
+void UGISStaticTileRendererComponent::TestCameraMovement(float InDeltaTime)
 {
-	static float x=0.0f;
+	/*static float x=0.0f;
 	static float y =0.0f;
 	float SpeedFractionSec=0.15;
 
-	x=x+SpeedFractionSec*DeltaTime;
-	y=y+SpeedFractionSec*DeltaTime;
-	Pan(x,y);
+	x=x+SpeedFractionSec*InDeltaTime;
+	y=y+SpeedFractionSec*InDeltaTime;
+	Pan(x,y);*/
 	
-	/*float DeltaTime = GetWorld()->GetDeltaSeconds();
+	
+	float DeltaTime = GetWorld()->GetDeltaSeconds();
 	float Time = GetWorld()->GetTimeSeconds();
 
 	// --- Base motion: slower sinusoidal oscillation ---
@@ -275,6 +276,7 @@ void UGISStaticTileRendererComponent::TestCameraMovement(float DeltaTime)
 
 	// --- Apply camera offset ---
 	// REPLACE WITH AN METHOD THAT USE GISSTATICTILERENDERERCOMPONENT
-	StaticStreamer->SetCameraOffset(SmoothedX, SmoothedY);*/
+	StaticStreamer->SetCameraOffset(SmoothedX, SmoothedY);
+
 }
 
