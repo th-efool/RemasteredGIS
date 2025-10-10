@@ -60,6 +60,14 @@ void UGISOverlayComponent::RenderMarkers()
 	{
 		if (!Entry.WidgetComp) continue;
 		FVector2D LocalPoint = ViewportActor->ConvertLatLongToLocalPoint(Entry.Latitude, Entry.Longitude, CurrentZoomLevel );
+		if (FMath::Abs(LocalPoint.X)>50 || FMath::Abs(LocalPoint.Y)>50 )
+		{
+			Entry.WidgetComp->SetVisibility(false);
+			continue;
+		} else
+		{
+			Entry.WidgetComp->SetVisibility(true);
+		}
 		FVector WorldLocation = ViewportActor->ConvertLocalPointToWorldPoint(FVector(LocalPoint, 0.0f));
 		Entry.WidgetComp->SetWorldLocation(WorldLocation);
 		Entry.WorldLocation = WorldLocation;
