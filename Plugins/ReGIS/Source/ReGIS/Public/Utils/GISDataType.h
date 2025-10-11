@@ -3,8 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "UObject/NoExportTypes.h"
 #include "GISDataType.generated.h"
-
 
 UCLASS()
 class REGIS_API UGISDataType : public UObject

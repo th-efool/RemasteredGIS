@@ -22,6 +22,7 @@ public:
 	virtual void* GetFallbackResource() override;
 	static UTexture2D* GetMarkedDebugResource(FColor FillColor);
 	static UTexture2D* GetLoadingTile();
+	
 	GISStaticTileFetcher();
 	virtual ~GISStaticTileFetcher();
 };

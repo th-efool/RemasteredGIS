@@ -24,7 +24,6 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	void StartupComponents();
 	void StartupInputControls();
-
 	// INPUT & USER INTERACTION
 public:
 	// INTERACTION
@@ -64,5 +63,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "StreamingConfig")
 	FInputTileData InputConfigData;
 
+
+public:
+	double LongitudeStart;
+	double LatitudeStart;
+	double LongitudeEnd;
+	double LatitudeEnd;
+	void FetchNavigationData();
+	void SetNavigationParams(double Longitude, double Latitude);
 
 };

@@ -5,7 +5,7 @@
 
 #include "Utils/GISConversionEngine.h"
 #include "Utils/GISErrorHandler.h"
-
+#include "API/GISNavigationFetcher.h"
 
 
 
@@ -31,6 +31,9 @@ void AGISStaticTileViewportActor::BeginPlay()
 	Super::BeginPlay();
 	StartupComponents();
 	StartupInputControls();
+
+	
+
 	
 }
 
@@ -119,6 +122,7 @@ void AGISStaticTileViewportActor::HandleOnClicked(UPrimitiveComponent* TouchedCo
 
 		if (OverlayComponent){OverlayComponent->AddMarkerAtWorldLocation(GISPoint.Latitude, GISPoint.Longitude);}
 		OnCanvasClicked.Broadcast(CanvasClickedDelegateParams);
+		SetNavigationParams(GISPoint.Longitude, GISPoint.Latitude);
 	}
 }
 
@@ -228,6 +232,54 @@ FVector AGISStaticTileViewportActor::ConvertLocalPointToWorldPoint(FVector Local
 {
 	FVector WorldPoint = TileMeshInstance.TileMesh->GetComponentTransform().TransformPosition(LocalCoord);
 	return WorldPoint;
+}
+
+
+void AGISStaticTileViewportActor::FetchNavigationData()
+{
+	GISNavigationFetcher* NavigationFetchr = new GISNavigationFetcher();
+	ParamsNavigationFetcher NavParams = ParamsNavigationFetcher(LongitudeStart,LatitudeStart,LongitudeEnd,LatitudeEnd);
+	NavigationFetchr->MakeApiCall(NavParams,[this](void* RouteData)
+	{
+
+		FRoute* Route = static_cast<FRoute*>(RouteData);
+		TArray<FMarkerEntry> Path;
+
+	for (const GeoCoordinate& Coord : Route->Geometry)
+	{
+		FMarkerEntry Marker;
+		Marker.Latitude = Coord.Latitude;
+		Marker.Longitude = Coord.Longitude;
+
+		// Optionally, immediately add marker to the world
+		Path.Add(Marker);
+	}
+
+	// Now render the path
+	OverlayComponent->AddPathBetweenPoints(Path);
+
+	});
+}
+
+void AGISStaticTileViewportActor::SetNavigationParams(double Longitude, double Latitude)
+{
+	if (LongitudeEnd!=0)
+	{
+		LongitudeEnd =0;
+		LatitudeStart=0;
+		LongitudeStart =0;
+		LatitudeEnd = 0;
+	}
+	if (LongitudeStart ==0)
+	{
+		LongitudeStart = Longitude;
+		LatitudeStart = Latitude;
+	} else
+	{
+		LongitudeEnd =  Longitude;
+		LatitudeEnd = Latitude;
+		FetchNavigationData();
+	}
 }
 
 

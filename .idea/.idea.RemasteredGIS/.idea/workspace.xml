@@ -15,8 +15,19 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="967cc7e2-8a47-44aa-ae05-a3fa208b46bf" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/Utils/GISNavigationDatatype.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/Utils/GISNavigationDatatype.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/API/GISNavigationFetcher.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/API/GISNavigationFetcher.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.RemasteredGIS/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.RemasteredGIS/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/NewBlueprint.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/NewBlueprint.uasset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Content/__ExternalActors__/TestMap/2/Y5/B9N8IHD83D2ELSRXR0VGJZ.uasset" beforeDir="false" afterPath="$PROJECT_DIR$/Content/__ExternalActors__/TestMap/2/Y5/B9N8IHD83D2ELSRXR0VGJZ.uasset" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/GISComponents/GISOverlayComponent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/GISComponents/GISOverlayComponent.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/ViewportActor/GISStaticTileViewportActor.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/ViewportActor/GISStaticTileViewportActor.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/API/GISStaticTileFetcher.h" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/API/GISStaticTileFetcher.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/Utils/GISDataType.h" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/Utils/GISDataType.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/ViewportActor/GISStaticTileViewportActor.h" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/ViewportActor/GISStaticTileViewportActor.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/ReGIS.Build.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/ReGIS.Build.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -30,7 +41,12 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/Plugins/ReGIS/Intermediate/Build/Win64/UnrealEditor/Inc/ReGIS/UHT/GISNavigationDatatype.gen.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/GISComponents/GISOverlayComponent.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/Utils/GISNavigationDatatype.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Private/Utils/GISNavigationDatatype.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/API/GISNavigationFetcher.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/API/GISNavigationFetcher.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/GISComponents/GISComponentBase.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Plugins/ReGIS/Source/ReGIS/Public/GISComponents/GISOverlayComponent.h" root0="FORCE_HIGHLIGHTING" />
   </component>
@@ -224,7 +240,8 @@
       <workItem from="1759924374907" duration="14003000" />
       <workItem from="1759946539592" duration="9767000" />
       <workItem from="1759988181480" duration="12270000" />
-      <workItem from="1760023027492" duration="31295000" />
+      <workItem from="1760023027492" duration="32038000" />
+      <workItem from="1760120138746" duration="17392000" />
     </task>
     <servers />
   </component>

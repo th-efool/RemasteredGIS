@@ -30,7 +30,10 @@ public class ReGIS : ModuleRules
 				"ImageWrapper", 
 				"UMG",
 				"InputCore",
-				"EnhancedInput" // ← required!
+				"EnhancedInput", // ← required!
+				"Json",
+				"JsonUtilities"
+
 				// ... add other public dependencies that you statically link with here ...
 			}
 		);

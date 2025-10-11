@@ -4,6 +4,7 @@
 #include "GISComponents/GISOverlayComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Utils/GISErrorHandler.h"
+#include "API/GISNavigationFetcher.h"
 #include "ViewportActor/GISStaticTileViewportActor.h"
 
 void UGISOverlayComponent::StartupComponent()
@@ -267,6 +268,8 @@ void UGISOverlayComponent::BeginPlay()
 		TimerHandle, 
 		[this]()
 		{
+		
+			
 			UE_LOG(LogTemp, Warning, TEXT("Lambda triggered after 3 seconds!"));
             
 			TArray<FMarkerEntry> Path;
