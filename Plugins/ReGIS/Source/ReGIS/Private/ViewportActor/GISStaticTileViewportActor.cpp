@@ -235,10 +235,16 @@ FVector AGISStaticTileViewportActor::ConvertLocalPointToWorldPoint(FVector Local
 }
 
 
-void AGISStaticTileViewportActor::FetchNavigationData()
+void AGISStaticTileViewportActor::TestFetchNavigationData()
 {
-	GISNavigationFetcher* NavigationFetchr = new GISNavigationFetcher();
-	ParamsNavigationFetcher NavParams = ParamsNavigationFetcher(LongitudeStart,LatitudeStart,LongitudeEnd,LatitudeEnd);
+	int32 RandomInt = FMath::RandRange(0, 100000);
+	int32 RandomInt2 = FMath::RandRange(0, 100000);
+
+	ParamsNavigationFetcher NavParams = ParamsNavigationFetcher(RandomInt,LongitudeStart,LatitudeStart,LongitudeEnd,LatitudeEnd);
+
+	OverlayComponent->StartJourney(NavParams,RandomInt2);
+	/*GISNavigationFetcher* NavigationFetchr = new GISNavigationFetcher();
+	ParamsNavigationFetcher NavParams = ParamsNavigationFetcher(234,LongitudeStart,LatitudeStart,LongitudeEnd,LatitudeEnd);
 	NavigationFetchr->MakeApiCall(NavParams,[this](void* RouteData)
 	{
 
@@ -258,7 +264,7 @@ void AGISStaticTileViewportActor::FetchNavigationData()
 	// Now render the path
 	OverlayComponent->AddPathBetweenPoints(Path);
 
-	});
+	});*/
 }
 
 void AGISStaticTileViewportActor::SetNavigationParams(double Longitude, double Latitude)
@@ -278,7 +284,7 @@ void AGISStaticTileViewportActor::SetNavigationParams(double Longitude, double L
 	{
 		LongitudeEnd =  Longitude;
 		LatitudeEnd = Latitude;
-		FetchNavigationData();
+		TestFetchNavigationData();
 	}
 }
 

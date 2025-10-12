@@ -2,12 +2,15 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Streaming//PathStreamer.h"
+
 #include "Blueprint/UserWidget.h"
 #include "Components/WidgetComponent.h"
 
 #include "Components/SplineComponent.h"
 #include "Components/SplineMeshComponent.h"
 #include "GISComponents/GISComponentBase.h"
+#include "Utils/GISNavigationDatatype.h"
 #include "GISOverlayComponent.generated.h"
 
 class AGISStaticTileViewportActor;
@@ -37,7 +40,7 @@ struct FPathEntry
 	TArray<FMarkerEntry> WayPoints;
 
 	UPROPERTY()
-	TArray<FVector> WorldPoints;
+	uint32 PathID=0;
 
 	UPROPERTY()
 	USplineComponent* SplineComp = nullptr;
@@ -58,22 +61,32 @@ public:
 
 	UPROPERTY()
 	AGISStaticTileViewportActor* ViewportActor;
-	
+
+// MARKERS	
 	// The widget class to use for markers
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<UUserWidget> MarkerWidgetClass;
-
-	// Adds a new marker widget at world location
-	UFUNCTION(BlueprintCallable)
-	void AddMarkerAtWorldLocation(double Latitude, double Longitude);
-
-	UFUNCTION()
-	void AddPathBetweenPoints(const TArray<FMarkerEntry>& Points);
-
 private:
 	UPROPERTY()
 	TArray<FMarkerEntry> Markers;
 	void RenderMarkers();
+public:
+	// Adds a new marker widget at world location
+	UFUNCTION(BlueprintCallable)
+	void AddMarkerAtWorldLocation(double Latitude, double Longitude);
+
+	
+// PATHS
+
+public:
+	PathStreamer* PathStreamerObj;
+	void StartJourney(ParamsNavigationFetcher JounreyParams, int32 inJourneyID);
+
+	
+	UFUNCTION()
+	void AddPathBetweenPoints(const TArray<FMarkerEntry>& Points);
+
+private:
 	UPROPERTY()
 	TArray<FPathEntry> Paths;
 	void RenderPaths();

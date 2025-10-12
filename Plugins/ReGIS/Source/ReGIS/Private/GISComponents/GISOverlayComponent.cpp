@@ -5,11 +5,13 @@
 #include "Kismet/GameplayStatics.h"
 #include "Utils/GISErrorHandler.h"
 #include "API/GISNavigationFetcher.h"
+#include "DBMS/DataManager.h"
 #include "ViewportActor/GISStaticTileViewportActor.h"
 
 void UGISOverlayComponent::StartupComponent()
 {
 	Super::StartupComponent();
+	PathStreamerObj = new PathStreamer();
 }
 
 void UGISOverlayComponent::TickComponent(float DeltaTime, ELevelTick TickType,
@@ -53,6 +55,36 @@ void UGISOverlayComponent::AddMarkerAtWorldLocation(double Latitude, double Long
 	Entry.Longitude = Longitude;
 	Markers.Add(Entry);
 	
+}
+
+void UGISOverlayComponent::StartJourney(ParamsNavigationFetcher JounreyParams, int32 inJourneyID)
+{
+	UDataManager* DataManager= GetWorld()->GetGameInstance()->GetSubsystem<UDataManager>();
+	if (DataManager==nullptr){return;}
+	DataManager->GetNavigationData(JounreyParams,[this,inJourneyID](FRoute* RouteData)
+	{
+		Journey* CreatedJourney = PathStreamerObj->CreateJourney(*RouteData,inJourneyID);
+		TArray<GeoCoordinate> Coordinates = CreatedJourney->GetRemainingGeometry();
+		TArray<FMarkerEntry> CreatedPathPoints;
+		for (auto GeoCoordinate : Coordinates)
+		{
+			FMarkerEntry Entry;
+			Entry.Latitude = GeoCoordinate.Latitude;
+			Entry.Longitude = GeoCoordinate.Longitude;
+			CreatedPathPoints.Add(Entry);
+		}
+		AddPathBetweenPoints(CreatedPathPoints);
+		// --- Enhanced debug print ---
+		FString DebugMessage = FString::Printf(
+			TEXT("JourneyID: %d\nDistance: %f\nInstruction: %s\nDuration: %f"),
+			inJourneyID,
+			CreatedJourney->RouteData.Distance,
+			*CreatedJourney->GetCurrentInstruction(),
+			CreatedJourney->RouteData.Duration
+		);
+		
+		PRINT_SCREEN(DebugMessage)
+	});
 }
 
 void UGISOverlayComponent::AddPathBetweenPoints(const TArray<FMarkerEntry>& Points)
@@ -115,7 +147,6 @@ void UGISOverlayComponent::AddPathBetweenPoints(const TArray<FMarkerEntry>& Poin
 	}
 
 	FPathEntry PathEntry;
-	PathEntry.WorldPoints = WorldPts;
 	PathEntry.SplineComp = Spline;
 	PathEntry.SplineMeshes = MeshSegments;
 	PathEntry.WayPoints = Points;

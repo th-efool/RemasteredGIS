@@ -11,6 +11,8 @@ enum class ENavigationProfile : uint8
 };
 struct ParamsNavigationFetcher : public IGISCustomDatatypes
 {
+	int32 fetchID=0;
+	
 	double StartLongitude;
 	double StartLatitude;
 	
@@ -26,8 +28,8 @@ struct ParamsNavigationFetcher : public IGISCustomDatatypes
 
 
 	// Default constructor
-	ParamsNavigationFetcher()
-		: StartLongitude(0.0), StartLatitude(0.0),
+	ParamsNavigationFetcher(int InfetchID)
+		: fetchID(InfetchID),StartLongitude(0.0), StartLatitude(0.0),
 		  EndLongitude(0.0), EndLatitude(0.0),
 		  ProfileType(ENavigationProfile::Driving),
 		  bAlternatives(true), bSteps(true),
@@ -35,28 +37,28 @@ struct ParamsNavigationFetcher : public IGISCustomDatatypes
 	{}
 
 	// Constructor with start/end doubles
-	ParamsNavigationFetcher(double InStartLongitude, double InStartLatitude,
+	ParamsNavigationFetcher(int InfetchID, double InStartLongitude, double InStartLatitude,
 							double InEndLongitude, double InEndLatitude)
-		: StartLongitude(InStartLongitude), StartLatitude(InStartLatitude),
+		: fetchID(InfetchID),StartLongitude(InStartLongitude), StartLatitude(InStartLatitude),
 		  EndLongitude(InEndLongitude), EndLatitude(InEndLatitude)
 	{}
 
 	// Constructor with start/end + profile
-	ParamsNavigationFetcher(double InStartLongitude, double InStartLatitude,
+	ParamsNavigationFetcher(int InfetchID, double InStartLongitude, double InStartLatitude,
 							double InEndLongitude, double InEndLatitude,
 							ENavigationProfile InProfile)
-		: StartLongitude(InStartLongitude), StartLatitude(InStartLatitude),
+		: fetchID(InfetchID), StartLongitude(InStartLongitude), StartLatitude(InStartLatitude),
 		  EndLongitude(InEndLongitude), EndLatitude(InEndLatitude),
 		  ProfileType(InProfile)
 	{}
 
 	// Full constructor with all options
-	ParamsNavigationFetcher(double InStartLongitude, double InStartLatitude,
+	ParamsNavigationFetcher(int InfetchID, double InStartLongitude, double InStartLatitude,
 							double InEndLongitude, double InEndLatitude,
 							ENavigationProfile InProfile,
 							bool bInAlternatives, bool bInSteps,
 							const FString& InOverview, const FString& InLanguage)
-		: StartLongitude(InStartLongitude), StartLatitude(InStartLatitude),
+		: fetchID(InfetchID),StartLongitude(InStartLongitude), StartLatitude(InStartLatitude),
 		  EndLongitude(InEndLongitude), EndLatitude(InEndLatitude),
 		  ProfileType(InProfile),
 		  bAlternatives(bInAlternatives), bSteps(bInSteps),

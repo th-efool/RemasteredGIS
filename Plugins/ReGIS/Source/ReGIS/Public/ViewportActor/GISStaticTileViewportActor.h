@@ -69,7 +69,7 @@ public:
 	double LatitudeStart;
 	double LongitudeEnd;
 	double LatitudeEnd;
-	void FetchNavigationData();
+	void TestFetchNavigationData();
 	void SetNavigationParams(double Longitude, double Latitude);
 
 };

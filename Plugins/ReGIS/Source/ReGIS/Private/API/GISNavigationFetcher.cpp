@@ -1,5 +1,5 @@
 ﻿
-#include "GISNavigationFetcher.h"
+#include "API/GISNavigationFetcher.h"
 #include "Json.h"
 #include "JsonUtilities.h"
 #include "Interfaces/IHttpResponse.h"
@@ -110,6 +110,29 @@ void GISNavigationFetcher::HandleAPIResponse(FHttpResponsePtr Response, TFunctio
 						const TSharedPtr<FJsonObject> StepObj = StepVal->AsObject();
 						FRouteStep Step;
 
+						const TSharedPtr<FJsonObject>* SubGeometryObj;
+
+						if (StepObj->TryGetObjectField(TEXT("geometry"), SubGeometryObj))
+						{
+							const TArray<TSharedPtr<FJsonValue>>* SubCoordinatesArray;
+							if ((*SubGeometryObj)->TryGetArrayField(TEXT("coordinates"), SubCoordinatesArray))
+							{
+								for (const TSharedPtr<FJsonValue>& CoordVal : *SubCoordinatesArray)
+								{
+									const TArray<TSharedPtr<FJsonValue>> Coord = CoordVal->AsArray();
+									if (Coord.Num() >= 2)
+									{
+										GeoCoordinate GeoPoint;
+										GeoPoint.Longitude = Coord[0]->AsNumber();
+										GeoPoint.Latitude  = Coord[1]->AsNumber();
+										Step.Geometry.Add(GeoPoint);
+									}
+								}  
+							}
+						}
+
+
+						
 						if (const TSharedPtr<FJsonObject>* ManeuverObj;
 							StepObj->TryGetObjectField(TEXT("maneuver"), ManeuverObj))
 						{
@@ -123,10 +146,16 @@ void GISNavigationFetcher::HandleAPIResponse(FHttpResponsePtr Response, TFunctio
 
 							(*ManeuverObj)->TryGetStringField(TEXT("instruction"), Step.Action);
 						}
+						
 
 						Step.Distance = StepObj->GetNumberField(TEXT("distance"));
 						Step.Duration = StepObj->GetNumberField(TEXT("duration"));
+
+
+						
+
 						Route->Steps.Add(Step);
+						
 					}
 				}
 			}
