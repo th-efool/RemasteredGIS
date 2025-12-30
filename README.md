@@ -11,7 +11,7 @@ It bridges **GIS datasets** and **game-engine rendering pipelines**, enabling de
 
 <img 
   src="https://github.com/th-efool/RemasteredGIS/blob/master/screenshot20251230094649.png?raw=true"
-  width="70%"
+  width="85%"
 />
 ---
 
