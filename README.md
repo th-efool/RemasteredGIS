@@ -1,6 +1,4 @@
-# RemasteredGIS
-
-# 🌍 Unreal GIS Plugin
+# RemasteredGIS - Unreal GIS Plugin
 
 **Unreal GIS Plugin** is a feature-rich Unreal Engine module for real-time visualization of real-world geospatial data.  
 It bridges **GIS datasets** and **game-engine rendering pipelines**, enabling developers to create immersive, data-driven 3D worlds and AR navigation systems directly inside Unreal Engine.
