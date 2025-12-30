@@ -9,7 +9,10 @@ It bridges **GIS datasets** and **game-engine rendering pipelines**, enabling de
 ![Coordinates](https://img.shields.io/badge/coordinates-WGS84%20%E2%86%94%20UE-lightgrey.svg)
 ![Status](https://img.shields.io/badge/status-active-yellow.svg)
 
-![Navigation](https://github.com/th-efool/RemasteredGIS/blob/master/screenshot20251230094649.png?raw=true)
+<img 
+  src="https://github.com/th-efool/RemasteredGIS/blob/master/screenshot20251230094649.png?raw=true"
+  width="70%"
+/>
 ---
 
 ## 🧭 Core Features
