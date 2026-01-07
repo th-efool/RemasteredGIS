@@ -1,4 +1,4 @@
-# RemasteredGIS - Unreal GIS Plugin
+# Unreal GIS Renderer & API Integration Plugin
 ![Engine](https://img.shields.io/badge/engine-Unreal%20Engine%205-0E1128.svg)
 ![Type](https://img.shields.io/badge/type-GIS%20plugin-blue.svg)
 ![Streaming](https://img.shields.io/badge/streaming-tile--based-success.svg)
